@@ -1,0 +1,171 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>BuluBuluBuluz</title>
+  <link rel="shortcut icon" href="/favicon.ico"/>
+  <link rel="bookmark" href="/favicon.ico"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <script src="/static/js/jquery.js"></script>
+  <style type="text/css">
+    *{
+      margin: 0px;
+      padding: 0px;
+    }
+    .textrow{
+      margin: 5px auto;
+      width: 506px;
+      border: thin groove;
+      padding: 15px;
+    }
+    #textline{
+      margin: 0px;
+      padding: 5px 10px;
+      width: 400px;
+    }
+    #btnsubmit{
+      margin: 0px;
+      padding: 5px;
+      width: 80px;
+    }
+    .msgcontent{
+      width: 516px;
+      border: thin groove;
+      padding: 10px;
+      margin: 5px auto;
+      text-align: center;
+    }
+    .msgcontent ul{
+      list-style: none;
+      margin:0;
+      display: block;
+      padding:0px;
+    }
+    .msgcontent li{
+      width: 500px;
+      margin: 0 auto;
+      margin-bottom: 5px;
+      padding: 2px 5px 2px 5px;
+      border-radius: 4px;
+    }
+    li.alignl{
+      text-align: left;
+    }
+    li.alignl p{
+      padding: 8px;
+      border-radius: 6px;
+      background-color: #FFDFF3;
+    }
+    li.alignr{
+      text-align: right;
+    }
+    li.alignr p{
+      padding: 8px;
+      border-radius: 6px;
+      background-color: #DCF0DC;
+    }
+    span.fail{
+      color: red;
+    }
+    img.loading{
+      width: 32px;
+      height: 32px;
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="textrow" id="textrow">
+    <input type="text" class="inp" id="textline" name="url" value="" placeholder="请输入消息并按回车或者发送按钮">
+    <input type="submit" class="btn btn-primary inp" id="btnsubmit" value="发送">
+  </div>
+
+  <div class="msgcontent">
+    <div>
+      <img id="loading" src="/static/img/loading.gif" class="loading">
+    </div>
+    <ul id="msgs">
+      <li class="alignl">
+        <p>欢迎光临BuluBuluBuluz<br />-------------<br />你可以发送问号(?)给我</p>
+      </li>
+<!--       <li class="alignl">
+        <p>消息消息消息<br />消息消息消息消息</p>
+      </li>
+      <li class="alignr">
+        <p>消息消息消息消息消息消息消息</p>
+      </li> -->
+    </ul>
+  </div>
+  <script type="text/javascript">
+    J=\$;
+
+    String.prototype.replaceAll = function(reallyDo, replaceWith, ignoreCase) {
+        if (!RegExp.prototype.isPrototypeOf(reallyDo)) {
+            return this.replace(new RegExp(reallyDo, (ignoreCase ? "gi": "g")), replaceWith);
+        } else {
+            return this.replace(reallyDo, replaceWith);
+        }
+    }
+
+    function createitem(text, tag, suc){
+      if(typeof(suc)=='undefined')
+        suc = true;
+
+      li = document.createElement("li");
+      li.setAttribute('class', 'align'+tag);
+      p = document.createElement("p");
+      if(suc){
+        p.innerHTML = text;
+      }
+      else{
+        p.innerHTML = '<span class="fail">[失败]</span>' + text;
+      }
+      li.appendChild(p);
+      return li;
+    }
+
+    function sendmessage(msg){
+      if(msg.length == 0)
+        return false;
+      J("#loading").show();
+      J.ajax({
+        url: '',
+        type: 'POST',
+        timeout: 20,
+        data:{
+          message: msg
+        },
+        dataType: 'json',
+        timeout: 2000,
+        error: function(){
+          J("#loading").hide();
+          lst = document.getElementById("msgs");
+          lst.insertBefore(createitem(msg, 'r', false), lst.firstChild);
+        },
+        success: function(result){
+          J("#loading").hide();
+          lst = document.getElementById("msgs");
+          lst.insertBefore(createitem(msg, 'r'), lst.firstChild);
+          lst.insertBefore(createitem(result.message.replaceAll('\n', '<br />'), 'l'), lst.firstChild);
+          textline.value = '';
+        }
+      });
+    }
+
+    J("#btnsubmit").click(function(){
+      sendmessage(textline.value);
+    });
+
+
+    document.onkeydown = function KeyDown(event)
+    {
+      if(event.keyCode == 13)
+      {
+        J("#btnsubmit").click();
+      }
+    }
+  </script>
+</html>
