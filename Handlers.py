@@ -11,7 +11,7 @@ from bulu.Bulu import handlemessage, BOTTOMHELPFULL
 
 class TencentWX(WXHandler):
     '''
-                腾讯微信公共平台消息处理
+    腾讯微信公共平台消息处理
     '''
     def __init__(self, accesstoken=None, wxtoken=None):
         WXHandler.__init__(self, accesstoken=accesstoken, wxtoken=wxtoken)
@@ -25,13 +25,13 @@ class TencentWX(WXHandler):
     
     def whentextmsg(self, wxaccess):
         '''
-                            文本消息处理
+        文本消息处理
         '''
         return wxaccess.response_textmessage(handlemessage(wxaccess.fromuser, wxaccess.get_textmsg()))
 
     def whenunknownmsgtype(self, wxaccess):
         '''
-                            未知消息类型的处理
+        未知消息类型的处理
         '''
         return wxaccess.response_textmessage('对不起,主银还没有告诉我怎么理解这类消息~~\n%s'%BOTTOMHELPFULL)
 
