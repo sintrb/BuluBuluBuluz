@@ -27,12 +27,14 @@ class TencentWX(WXHandler):
         '''
         文本消息处理
         '''
+        # 对于文本消息，调用handlemessage之后放回处理结果
         return wxaccess.response_textmessage(handlemessage(wxaccess.fromuser, wxaccess.get_textmsg()))
 
     def whenunknownmsgtype(self, wxaccess):
         '''
         未知消息类型的处理
         '''
+        # 图片、语音、位置等信息返回不知道
         return wxaccess.response_textmessage('对不起,主银还没有告诉我怎么理解这类消息~~\n%s'%BOTTOMHELPFULL)
 
 

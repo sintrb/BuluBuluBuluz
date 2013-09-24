@@ -148,32 +148,78 @@ class WXAccess(object):
 		return new_musicmsg(self.touser, self.fromuser, title, description, musicurl, hqmusicurl)
 
 
-	# 	Get Message Info
+	# 消息获取
 	def get_textmsg(self):
+		'''
+		获取文本消息
+		'''
 		return self.reqdict['Content']
+
 	def get_imageurl(self):
+		'''
+		获取图片地址
+		'''
 		return self.reqdict['PicUrl']
+
 	def get_locationx(self):
+		'''
+		获取位置经度
+		'''
 		return self.reqdict['Location_X']
+
 	def get_locationy(self):
+		'''
+		获取位置纬度
+		'''
 		return self.reqdict['Location_Y']
+
 	def get_locationscale(self):
+		'''
+		获取获取位置缩放
+		'''
 		return self.reqdict['Scale']
+
 	def get_locationlabel(self):
+		'''
+		获取位置描述
+		'''
 		return self.reqdict['Label']
+
 	def get_linktitle(self):
+		'''
+		获取链接标题
+		'''
 		return self.reqdict['Title']
+
 	def get_linkdescription(self):
+		'''
+		获取链接描述
+		'''
 		return self.reqdict['Description']
+
 	def get_linkurl(self):
+		'''
+		获取链接地址
+		'''
 		return self.reqdict['Url']
+
 	def get_mediaid(self):
+		'''
+		获取获取内容
+		'''
 		return self.reqdict['MediaId']
+
 	def get_format(self):
+		'''
+		获取内容格式
+		'''
 		return self.reqdict['Format']
 	
 	# 
 	def get_echostr(self):
+		'''
+		获取回显字符串
+		'''
 		return self.parameters['echostr']
 	
 
@@ -185,6 +231,7 @@ class WXHandler(object):
 	WXTOKEN = 'bulubulubuluztoken'
 	test_handler = str
 	def __init__(self, accesstoken=None, wxtoken=None):
+		# 事实上wxtoken已经无法获取了
 		self.accesstoken = accesstoken
 		self.wxtoken = wxtoken or WXHandler.WXTOKEN
 		self.handlermap = {
