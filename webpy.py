@@ -33,6 +33,7 @@ class WeiXinAPI(object):
             return wxhandler.process_request(parameters=web.input(), postdata=web.data())
         except:
             web.header('Content-Type', 'text/html; charset=utf-8')
+            print 'fail xml: %s'%web.data()
             return render.errorequest()
     def POST(self):
         return self.GET()

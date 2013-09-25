@@ -82,10 +82,9 @@ def new_textmsg(FromUserName, ToUserName, Content, retxml=True):
 		return dic
 
 class WXAccess(object):
-	WXTOKEN = 'bulubulubuluztoken'
 	def __init__(self, parameters=None, postdata=None, accesstoken=None, wxtoken=None):
 		self.accesstoken = accesstoken
-		self.wxtoken = wxtoken or WXAccess.WXTOKEN
+		self.wxtoken = wxtoken
 		self.reqdict = {}
 		self.fromuser = ''
 		self.touser = ''
@@ -228,12 +227,11 @@ class WXHandler(object):
 	'''
 	处理微信服务器的消息请求
 	'''
-	WXTOKEN = 'bulubulubuluztoken'
 	test_handler = str
 	def __init__(self, accesstoken=None, wxtoken=None):
 		# 事实上wxtoken已经无法获取了
 		self.accesstoken = accesstoken
-		self.wxtoken = wxtoken or WXHandler.WXTOKEN
+		self.wxtoken = wxtoken
 		self.handlermap = {
 						'text': self.whentextmsg,
 						'image': self.whenimagemsg,
@@ -311,12 +309,12 @@ class WXHandler(object):
 		return 'default whenunsubscribeevent'
 	def whenclickevent(self, wxaccess):
 		'''
-		用户取消订阅事件
+		用户单击菜单事件
 		'''
 		return 'default whenclickevent'
 	def whenunknownevent(self, wxaccess):
 		'''
-		用户取消订阅事件
+		未知的事件
 		'''
 		return 'default whenunknownevent'
 	
