@@ -407,6 +407,16 @@ def test_handler(hd):
 		<Event><![CDATA[subscribe]]></Event>
 		<EventKey><![CDATA[EVENTKEY]]></EventKey>
 	</xml>
+	''',
+	'''
+	<xml>
+		<ToUserName><![CDATA[gh_9572e3a907db]]></ToUserName>
+		<FromUserName><![CDATA[ofYB4jt9Sk0uIY8tv2nrluSH6jcc]]></FromUserName>
+		<CreateTime>1380348665</CreateTime>
+		<MsgType><![CDATA[event]]></MsgType>
+		<Event><![CDATA[subscribe]]></Event>
+		<EventKey><![CDATA[]]></EventKey>
+	</xml>
 	'''
 	]
 	print hd.process_request(querystr='/api?signature=5a5cdf9834d4194ae799d0a5c91a60d0cbb5c507&echostr=5928508849433613599&timestamp=1379931416&nonce=1380338535')
@@ -416,5 +426,5 @@ def test_handler(hd):
 WXHandler.test_handler = test_handler
 
 if __name__ == '__main__':
-	WXHandler.test_handler(WXHandler())
+	WXHandler.test_handler(WXHandler(wxtoken='bulubulubuluztoken'))
 

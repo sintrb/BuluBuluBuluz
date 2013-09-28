@@ -16,7 +16,7 @@ try:
 except:
     pass
 def search_books(keyword, way="title"):
-    url = 'http://202.203.222.211/opac/search?rows=10&&q=%s&searchWay=%s'%(keyword,way)
+    url = 'http://202.203.222.211/opac/search?rows=30&&q=%s&searchWay=%s'%(keyword,way)
 #     print url
     html = urllib2.urlopen(url).read()
     table = strings.strbetween(html, '<table class="resultTable">', '</table>', contain=True)

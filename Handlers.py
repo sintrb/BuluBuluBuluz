@@ -39,7 +39,10 @@ class TencentWX(WXHandler):
         '''
         # 图片、语音、位置等信息返回不知道
         return wxaccess.response_textmessage('对不起,主银还没有告诉我怎么理解这类消息~~\n%s'%BOTTOMHELPFULL)
-
+    
+    def whensubscribeevent(self, wxaccess):
+        # wxaccess.fromuser
+        return wxaccess.response_textmessage('欢迎订阅BuluBuluBuluz\n%s'%BOTTOMHELPFULL)
 
 
 if __name__ == '__main__':
