@@ -299,13 +299,12 @@ class WXHandler(object):
 		'''
 		用户添加订阅事件
 		'''
-		return wxaccess.response_textmessage('欢迎订阅BuluBuluBuluz\nID:%s'%wxaccess.fromuser)
+		return wxaccess.response_textmessage('欢迎订阅!')
 	
 	def whenunsubscribeevent(self, wxaccess):
 		'''
 		用户取消订阅事件
 		'''
-		print '--------->subscribe: %s'%wxaccess.fromuser
 		return 'default whenunsubscribeevent'
 	def whenclickevent(self, wxaccess):
 		'''

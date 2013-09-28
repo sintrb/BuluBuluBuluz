@@ -31,11 +31,11 @@ class WeiXinAPI(object):
         try:
             web.header('Content-Type', 'text/xml; charset=utf-8')
             data = web.data()
-            print 'post: %s'%data
+#             print 'post: %s'%data
             return wxhandler.process_request(parameters=web.input(), postdata=data)
         except:
             web.header('Content-Type', 'text/html; charset=utf-8')
-            print 'fail xml: %s'%web.data()
+            print 'fail. xml: %s'%web.data()
             return render.errorequest()
     def POST(self):
         return self.GET()
