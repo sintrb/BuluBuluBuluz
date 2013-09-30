@@ -7,7 +7,7 @@ Created on 2013-9-14
 
 
 from weixin import WXHandler
-from bulu.Bulu import handlemessage, BOTTOMHELPFULL
+from bulu.Bulu import handlemessage, whensubscribeevent, whenunsubscribeevent, BOTTOMHELPFULL
 
 
 WXTOKEN = 'bulubulubuluztoken'
@@ -45,14 +45,14 @@ class TencentWX(WXHandler):
 		用户订阅
 		'''
 		print '--------->subscribe: %s' % wxaccess.fromuser
-		return wxaccess.response_textmessage('欢迎订阅BuluBuluBuluz\n%s' % BOTTOMHELPFULL)
+		return wxaccess.response_textmessage(whensubscribeevent(wxaccess.fromuser))
 	
 	def whenunsubscribeevent(self, wxaccess):
 		'''
 		用户取消订阅
 		'''
 		print '--------->unsubscribe: %s' % wxaccess.fromuser
-		return WXHandler.whenunsubscribeevent(self, wxaccess)
+		return wxaccess.response_textmessage(whenunsubscribeevent(wxaccess.fromuser))
 	
 
 if __name__ == '__main__':
