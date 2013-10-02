@@ -45,7 +45,7 @@ class TencentWX(WXHandler):
 		用户订阅
 		'''
 		print '--------->subscribe: %s' % wxaccess.fromuser
-		return wxaccess.response_textmessage(whensubscribeevent(wxaccess.fromuser))
+		return wxaccess.response_textmessage('whensubscribeevent(wxaccess.fromuser)')
 	
 	def whenunsubscribeevent(self, wxaccess):
 		'''

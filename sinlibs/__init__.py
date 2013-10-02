@@ -3,4 +3,4 @@
 utils
 '''
 
-__all__ = ['utils', 'tools']
+__all__ = ['utils', 'tools', 'db']

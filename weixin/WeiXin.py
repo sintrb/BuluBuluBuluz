@@ -229,7 +229,6 @@ class WXHandler(object):
 	'''
 	test_handler = str
 	def __init__(self, accesstoken=None, wxtoken=None):
-		# 事实上wxtoken已经无法获取了
 		self.accesstoken = accesstoken
 		self.wxtoken = wxtoken
 		self.handlermap = {
