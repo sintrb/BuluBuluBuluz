@@ -50,10 +50,12 @@ tpl_message = {
 			}
 
 MESSAGE_TYPE_TEXT = 1
+MESSAGE_TYPE_ERROR = 2
 
 
 MESSAGE_DIR_UP = 1
 MESSAGE_DIR_DOWN = 2
+MESSAGE_DIR_INTER = 3
 
 
 def reset_all():
@@ -63,9 +65,10 @@ def reset_all():
 	dba.create_table(tb_message, tpl_message, new=True)
 
 def handlemessage(user, msg):
-# 	if msg=='reset':
-# 		reset_all()
-# 		return 'reset ok'
+	if msg=='.reset' and user=='ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
+		# 该操作很危险，会重置数据库，只允许特定用户
+		reset_all()
+		return 'reset ok'
 	dbcon = get_connect()
 	dba = SinDBAccess(dbcon, debug=False)
 	dba.add_object(tb_message, {
@@ -100,7 +103,16 @@ def handlemessage(user, msg):
 					bks = spl.join(['%s (%s)'%(bmp[ix]['name'], bmp[ix]['index']) for ix in ixs])
 					rets = '>>%s :%d条\n%s'%(keyword, len(ixs), bks)
 	except:
-		rets = 'oops...\n内部出错\n请重试\n%s'%BOTTOMHELPFULL
+		rets = 'Oops...\n内部出错\n请重新试  ~_~\n%s'%BOTTOMHELPFULL
+		dba.add_object(tb_message, {
+	  							'userid':user, 
+	  							'message':msg, 
+	  							'type':'error', 
+	  							'typeid': MESSAGE_TYPE_ERROR, 
+	  							'dir':MESSAGE_DIR_INTER,
+	  							'time':int(time())
+	  							}
+	  				)
 	dba.add_object(tb_message, {
   							'userid':user, 
   							'message':rets, 
