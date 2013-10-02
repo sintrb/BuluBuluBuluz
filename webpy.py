@@ -10,7 +10,7 @@ import json
 from Handlers import TencentWX 
 from bulu.Bulu import handlemessage
 from sinlibs.utils.strings import gentoken
-
+from bulu.Bulu import whensubscribeevent
 import hashlib
 
 web.config.debug = True
@@ -47,16 +47,20 @@ class StaticFile:
 
 class OnlineBulu(object):
 	def GET(self):
-		if not web.cookies().get('usertoken'):
-			usertk = hashlib.sha1(gentoken(l=20)).hexdigest()
-			web.setcookie('usertoken', usertk, 3600 * 24 * 365)
 		web.header('Content-Type', 'text/html; charset=utf-8')
 		return render.onlinebulu()
 	def POST(self):
+		if not web.cookies().get('usertoken'):
+			usertk = hashlib.sha1(gentoken(l=20)).hexdigest()
+			web.setcookie('usertoken', usertk, 3600 * 24 * 365)
+			user = usertk
+			whensubscribeevent(usertk, 'web')
+		else:
+			user = web.cookies().get('usertoken')
 		msg = web.input(message='?').message
 		ret = {
 			   'status': True,
-			   'message': handlemessage(web.cookies().get('usertoken'), msg)
+			   'message': handlemessage(user, msg)
 			   }
 		return json.dumps(ret)
 
