@@ -146,12 +146,11 @@
       J.ajax({
         url: '',
         type: 'POST',
-        timeout: 20,
         data:{
           message: msg
         },
         dataType: 'json',
-        timeout: 2000,
+        timeout: 20000,
         error: function(){
           J("#loading").hide();
           lst = document.getElementById("msgs");

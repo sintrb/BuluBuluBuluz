@@ -5,14 +5,29 @@ Created on 2013-9-14
 @author: RobinTang
 '''
 
-from sinlibs.tools.ynulib import search_books
 from sinlibs.db.dbbase import get_connect
 from sinlibs.db.SinDBAccess import SinDBAccess
-from time import time
+from sinlibs.db.SinKVDB import SinKVDB
 
-SPLITLINE = '-------------'
-BOTTOMHELP = '你可以发送问号(?)给我'
-BOTTOMHELPFULL = '%s\n%s'%(SPLITLINE, BOTTOMHELP)
+from time import time
+from SinLikeTerminal import SinLikeTerminal
+from BuluFuncs import BOTTOMHELPFULL
+import BuluFuncs
+import traceback
+
+config = {'debug':True}
+
+slt = SinLikeTerminal()
+slt.add_route('1', BuluFuncs.ynu_lib_search)
+slt.add_route('1.echo', BuluFuncs.tool_echo)
+slt.add_route('1.debug', BuluFuncs.tool_debug)
+slt.add_route('1.config', BuluFuncs.tool_config)
+
+
+slt.refresh_allroute()
+bulu_route = slt.route
+del slt
+
 
 tb_event = 'tb_bulu_event'
 tpl_event = {
@@ -65,59 +80,47 @@ def reset_all():
 	dba.create_table(tb_message, tpl_message, new=True)
 
 def handlemessage(user, msg):
-	if msg=='.reset' and user=='ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
+	if msg == '.reset' and user == 'ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
 		# 该操作很危险，会重置数据库，只允许特定用户
 		reset_all()
 		return 'reset ok'
 	dbcon = get_connect()
 	dba = SinDBAccess(dbcon, debug=False)
 	dba.add_object(tb_message, {
-  							'userid':user, 
-  							'message':msg, 
-  							'type':'text', 
-  							'typeid': MESSAGE_TYPE_TEXT, 
+  							'userid':user,
+  							'message':msg,
+  							'type':'text',
+  							'typeid': MESSAGE_TYPE_TEXT,
   							'dir':MESSAGE_DIR_UP,
   							'time':int(time())
   							}
   				)
-	
-	rets = '"%s"未找到\n%s'%(msg, BOTTOMHELPFULL)
+	rets = '未处理'
 	try:
-		keyword = msg.strip()
-		if len(keyword) > 0:
-			if keyword=='?' or keyword == '？':
-				rets = '目前支持云大图书搜索.\n告诉我书名或关键字即可.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>'
-			elif keyword=='who':
-				rets = user
-			else:
-				books = search_books(keyword)
-				ixs = []
-				bmp = {}
-				for book in books:
-					if book['index'] and len(book['index']):
-						ixs.append(book['index'])
-						bmp[book['index']] = book
-				if len(ixs):
-					ixs.sort()
-					spl = '\n%s\n'%SPLITLINE
-					bks = spl.join(['%s (%s)'%(bmp[ix]['name'], bmp[ix]['index']) for ix in ixs])
-					rets = '>>%s :%d条\n%s'%(keyword, len(ixs), bks)
+		kvdb = SinKVDB(dbcon, table='tb_bulu_kvdb', tag='bulu', cache=False, debug=False)
+		curslt = SinLikeTerminal(kvdb, bulu_route)
+		msg = msg.replace('？', '?')
+		rets = curslt.process_message(user, msg)
 	except:
-		rets = 'Oops...\n内部出错\n请重新试  ~_~\n%s'%BOTTOMHELPFULL
+		if 'debug' in config and config['debug']:
+			errinfo = traceback.format_exc()
+			rets = errinfo
+		else:
+			rets = 'Oops...\n内部出错\n请重新试  ~_~\n%s' % BOTTOMHELPFULL
 		dba.add_object(tb_message, {
-	  							'userid':user, 
-	  							'message':msg, 
-	  							'type':'error', 
-	  							'typeid': MESSAGE_TYPE_ERROR, 
+	  							'userid':user,
+	  							'message':msg,
+	  							'type':'error',
+	  							'typeid': MESSAGE_TYPE_ERROR,
 	  							'dir':MESSAGE_DIR_INTER,
 	  							'time':int(time())
 	  							}
 	  				)
 	dba.add_object(tb_message, {
-  							'userid':user, 
-  							'message':rets, 
-  							'type':'text', 
-  							'typeid': MESSAGE_TYPE_TEXT, 
+  							'userid':user,
+  							'message':rets,
+  							'type':'text',
+  							'typeid': MESSAGE_TYPE_TEXT,
   							'dir':MESSAGE_DIR_DOWN,
   							'time':int(time())
   							}
@@ -171,7 +174,10 @@ def whenunsubscribeevent(user, ctype='weixin'):
 
 
 if __name__ == "__main__":
-	whensubscribeevent('user', 'msg')
+	while True:
+		msg = raw_input('')
+		if len(msg) > 0:
+			print handlemessage('user', msg)
 
 
 
