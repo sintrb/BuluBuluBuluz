@@ -15,7 +15,7 @@ from BuluFuncs import BOTTOMHELPFULL
 import BuluFuncs
 import traceback
 
-config = {'debug':True}
+config = {'debug':False}
 
 slt = SinLikeTerminal()
 slt.add_route('1', BuluFuncs.ynu_lib_search)
