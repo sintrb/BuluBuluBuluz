@@ -16,11 +16,16 @@ try:
 except:
 	pass
 def search_books(keyword, way="title", page=1):
+	print keyword
+# 	keyword = urllib2.quote(keyword.encode('gbk'))
 	url = 'http://202.203.222.211/opac/search?rows=30&&q=%s&searchWay=%s&page=%s' % (keyword, way, page)
 	try:
 		html = urllib2.urlopen(url).read()
+	except urllib2.HTTPError:
+		return []
 	except:
 		return None
+	
 	table = strings.strbetween(html, '<table class="resultTable">', '</table>', contain=True)
 	starti = 0
 	books = {}
@@ -35,6 +40,8 @@ def search_books(keyword, way="title", page=1):
 			starti = rg[1] + 1
 		else:
 			break
+	if len(books) == 0:
+		return []
 	
 	url = 'http://202.203.222.211/opac/book/callnos?bookrecnos=%s' % (','.join(books.keys()))
 	try:
@@ -67,12 +74,17 @@ def get_holdinginfo(bookid):
 			pass
 	return holds
 if __name__ == '__main__':
-	books = search_books('必读')
-	for book in books:
-		holds = get_holdinginfo(book['bookid'])
-		print book['name']
-		for hold in holds:
-			print '\t%s (%s)' % (hold['locname'], hold['number'])
+	import types
+	books = search_books(r'在坚持自己了解')
+	if type(books) is types.ListType:
+		if books:
+			print 'ct:%d'%len(books)
+# 			for book in books:
+# 				print book['name']
+		else:
+			print 'empty'
+	else:
+		print 'fail'
 
 
 

@@ -8,6 +8,7 @@ Created on 2013-10-5
 from sinlibs.tools.ynulib import search_books, get_holdinginfo
 from SinLikeTerminal import SLTAddAttrs, PrefixDict
 import Bulu
+import types
 SPLITLINE = '-----------'
 LONGSPLITLINE = '%s%s'%(SPLITLINE, SPLITLINE)
 BOTTOMHELP = '你可以发送问号(?)给我'
@@ -24,7 +25,7 @@ def is_num(s):
 def ynu_lib_search(user, msg, sesn):
 	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
 	keyword = msg.strip()
-	rets = '没有找到相关图书.\n%s'%BOTTOMHELPFULL
+	rets = '抱歉,\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%BOTTOMHELPFULL
 	if len(keyword) > 0:
 		sesn = PrefixDict(rawdict=sesn, prefix='ynu_lib_search')
 		page = 1
@@ -72,27 +73,30 @@ def ynu_lib_search(user, msg, sesn):
 			sesn['keyword'] = keyword
 			sesn['page'] = page
 			books = search_books(keyword, page=page)
-			if books:
-				ixs = []
-				bmp = {}
-				for book in books:
-					if book['index'] and len(book['index']):
-						ixs.append(book['index'])
-						bmp[book['index']] = book
-				if len(ixs):
-					ixs.sort()
-					spl = '\n%s\n' % SPLITLINE
-					stbks = [bmp[ix] for ix in ixs]
-					bks = spl.join(['%d.%s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
-					sesn['books'] = stbks
-					htip = '数字看明细'
-					pgt = '第%s页 N下页  '%page
-					if page>1:
-						pgt = '%sP上页\n'%pgt
-					pgt = '%s%s'%(pgt, htip)
-					rets = '%s :%d条\n%s\n%s\n%s\n%s' % (keyword, len(ixs), LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
-				elif page != 1:
-					rets = '%s :没有了\n%s\nP上一页' % (keyword, LONGSPLITLINE)
+			if type(books) is types.ListType:
+				if books:
+					ixs = []
+					bmp = {}
+					for book in books:
+						if book['index'] and len(book['index']):
+							ixs.append(book['index'])
+							bmp[book['index']] = book
+					if len(ixs):
+						ixs.sort()
+						spl = '\n%s\n' % SPLITLINE
+						stbks = [bmp[ix] for ix in ixs]
+						bks = spl.join(['%d.%s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
+						sesn['books'] = stbks
+						htip = '数字看明细'
+						pgt = '第%s页 N下页  '%page
+						if page>1:
+							pgt = '%sP上页\n'%pgt
+						pgt = '%s%s'%(pgt, htip)
+						rets = '%s :%d条\n%s\n%s\n%s\n%s' % (keyword, len(ixs), LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
+					elif page != 1:
+						rets = '%s :没有了\n%s\nP上一页' % (keyword, LONGSPLITLINE)
+				else:
+					pass
 			else:
 				rets = ynu_lib_ser_err
 	return rets
@@ -109,13 +113,14 @@ def tool_debug(user, msg, sesn):
 	if msg == 'stc':
 		from sinlibs.db.dbbase import get_connect
 		from sinlibs.db.SinDBAccess import SinDBAccess
-		from Bulu import tb_event
+		from Bulu import tb_event, tb_message
 		dbcon = get_connect()
 		dba = SinDBAccess(dbcon, debug=False)
 		count = dba.get_count(tb_event)
 		sub = dba.get_count(tb_event, conditions={'eventid':1})
 		unsub = dba.get_count(tb_event, conditions={'eventid':2})
-		return '订阅: %s\n退订: %s\n剩余: %s\n总数: %s'%(sub, unsub, sub-unsub, count)
+		mcount = dba.get_count(tb_message, conditions={'dir':1})
+		return '订阅: %s\n退订: %s\n剩余: %s\n总数: %s\n\n消息:%s'%(sub, unsub, sub-unsub, count, mcount)
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
