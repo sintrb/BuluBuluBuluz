@@ -16,7 +16,7 @@ try:
 except:
 	pass
 def search_books(keyword, way="title", page=1):
-	print keyword
+# 	print keyword
 # 	keyword = urllib2.quote(keyword.encode('gbk'))
 	url = 'http://202.203.222.211/opac/search?rows=30&&q=%s&searchWay=%s&page=%s' % (keyword, way, page)
 	try:
