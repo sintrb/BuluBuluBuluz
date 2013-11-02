@@ -31,7 +31,7 @@ class TencentWX(WXHandler):
 		文本消息处理
 		'''
 		# 对于文本消息，调用handlemessage之后放回处理结果
-		return wxaccess.response_textmessage(handlemessage(wxaccess.fromuser, wxaccess.get_textmsg()))
+		return wxaccess.response_textmessage(handlemessage(wxaccess.fromuser, wxaccess.get_textmsg(), wxaccess.context))
 
 	def whenunknownmsgtype(self, wxaccess):
 		'''
@@ -45,14 +45,14 @@ class TencentWX(WXHandler):
 		用户订阅
 		'''
 # 		print '--------->subscribe: %s' % wxaccess.fromuser
-		return wxaccess.response_textmessage(whensubscribeevent(wxaccess.fromuser))
+		return wxaccess.response_textmessage(whensubscribeevent(wxaccess.fromuser, ctx=wxaccess.context))
 	
 	def whenunsubscribeevent(self, wxaccess):
 		'''
 		用户取消订阅
 		'''
 # 		print '--------->unsubscribe: %s' % wxaccess.fromuser
-		return wxaccess.response_textmessage(whenunsubscribeevent(wxaccess.fromuser))
+		return wxaccess.response_textmessage(whenunsubscribeevent(wxaccess.fromuser, ctx=wxaccess.context))
 	
 
 if __name__ == '__main__':

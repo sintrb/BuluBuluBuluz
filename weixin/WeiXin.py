@@ -12,6 +12,7 @@ import hashlib
 from sinlibs.utils.pyxmldict import dict2xml
 import xml.etree.ElementTree as ET
 try:
+	reload(sys)
 	sys.setdefaultencoding("utf-8")
 except:
 	pass
@@ -91,6 +92,7 @@ class WXAccess(object):
 		self.msgtype = ''
 		self.parameters = {}
 		self.postdata = ''
+		self.context = None
 		if parameters:
 			self.parameters = parameters
 			
@@ -333,13 +335,14 @@ class WXHandler(object):
 		else:
 			return 'fail'
 
-	def process_request(self, parameters=None, postdata=None, querystr=None):
+	def process_request(self, parameters=None, postdata=None, querystr=None, context=None):
 		'''
 		处理微信服务器处理请求
 		'''
 		if (not parameters or len(parameters)==0) and querystr and len(querystr)>0:
 			parameters = dict(re.findall('([^=, ^&, ^?]*)=([^=, ^&]*)', querystr))
 		wxaccess = WXAccess(parameters=parameters, postdata=postdata, accesstoken=self.accesstoken, wxtoken=self.wxtoken)
+		wxaccess.context = context
 		res = ''
 		if postdata and len(postdata) > 0:
 			if self.handlermap.has_key(wxaccess.msgtype):

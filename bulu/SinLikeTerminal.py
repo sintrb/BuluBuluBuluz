@@ -23,6 +23,7 @@ xx	# process message with current function
 
 import sys
 try:
+	reload(sys)
 	sys.setdefaultencoding("utf-8")
 except:
 	pass
@@ -72,19 +73,19 @@ def SLTAddAttrs(**kwds):
 
 
 @SLTAddAttrs(name='func1', help='help1')
-def func1(uid, msg, sesn):
+def func1(uid, msg, sesn, ctx):
 	return 'func1 %s' % msg
 
 @SLTAddAttrs(name='func2', help='help2')
-def func2(uid, msg, sesn):
+def func2(uid, msg, sesn, ctx):
 	return 'func2 %s' % msg
 
 @SLTAddAttrs(name='func3', help='help3')
-def func3(uid, msg, sesn):
+def func3(uid, msg, sesn, ctx):
 	return 'func3 %s' % msg
 
 @SLTAddAttrs(name='func4', help='help4')
-def func4(uid, msg, sesn):
+def func4(uid, msg, sesn, ctx):
 	return 'func4 %s' % msg
 
 class SinLikeTerminal():
@@ -137,10 +138,10 @@ class SinLikeTerminal():
 		return route
 		
 	
-	def __process_message_with_route__(self, route, message, uid, usersession):
-		return route(uid, message, usersession)
+	def __process_message_with_route__(self, route, message, uid, usersession, context):
+		return route(uid, message, usersession, context)
 	
-	def process_message(self, uid, message):
+	def process_message(self, uid, message, context):
 		usersession = PrefixDict(rawdict=self.session, prefix=str(uid))
 		print self.__get_current_routes__(usersession)
 		if message[0] == SinLikeTerminal.__PREFIX_BACK__:
@@ -173,7 +174,7 @@ class SinLikeTerminal():
 				# current help
 				return self.__gen_help__(route)
 			else:
-				return self.__process_message_with_route__(route['func'], message, uid, usersession)
+				return self.__process_message_with_route__(route['func'], message, uid, usersession, context)
 
 	def __gen_help__(self, route):
 		if 'subfunc' in route and len(route['subfunc']) and len(route['help'])==0:
@@ -235,7 +236,7 @@ if __name__ == '__main__':
 	while True:
 		ins = raw_input("input: ")
 		if len(ins) > 0:
-			print slt.process_message(sessionid, ins)
+			print slt.process_message(sessionid, ins, None)
 	print slt.route
 	
 	

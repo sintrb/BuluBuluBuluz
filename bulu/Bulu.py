@@ -6,7 +6,6 @@ Created on 2013-9-14
 '''
 
 from sinlibs.db.dbbase import get_connect
-from sinlibs.db.SinDBAccess import SinDBAccess
 from sinlibs.db.SinKVDB import SinKVDB
 
 from time import time
@@ -73,19 +72,18 @@ MESSAGE_DIR_DOWN = 2
 MESSAGE_DIR_INTER = 3
 
 
-def reset_all():
-	dbcon = get_connect()
-	dba = SinDBAccess(dbcon, debug=True)
+def reset_all(ctx):
+	dba = ctx.dba
 	dba.create_table(tb_event, tpl_event, new=True)
 	dba.create_table(tb_message, tpl_message, new=True)
 
-def handlemessage(user, msg):
+def handlemessage(user, msg, ctx=None):
 	if msg == '.reset' and user == 'ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
 		# 该操作很危险，会重置数据库，只允许特定用户
-		reset_all()
+		reset_all(ctx)
 		return 'reset ok'
-	dbcon = get_connect()
-	dba = SinDBAccess(dbcon, debug=False)
+	dba = ctx.dba
+	sttm = entm = 0
 	dba.add_object(tb_message, {
   							'userid':user,
   							'message':msg,
@@ -97,13 +95,16 @@ def handlemessage(user, msg):
   				)
 	rets = '未处理'
 	try:
-		kvdb = SinKVDB(dbcon, table='tb_bulu_kvdb', tag='bulu', cache=False, debug=False)
+		kvdb = ctx.kvdb
 		curslt = SinLikeTerminal(kvdb, bulu_route)
 		msg = msg.replace('？', '?')
-		rets = curslt.process_message(user, msg)
+		sttm = time()
+		rets = curslt.process_message(user, msg, ctx)
+		entm = time()
 	except:
+		errinfo = traceback.format_exc()
+		print errinfo
 		if 'debug' in config and config['debug']:
-			errinfo = traceback.format_exc()
 			rets = errinfo
 		else:
 			rets = 'Oops...\n内部出错\n请重新试  ~_~\n%s' % BOTTOMHELPFULL
@@ -119,7 +120,7 @@ def handlemessage(user, msg):
 	dba.add_object(tb_message, {
   							'userid':user,
   							'message':rets,
-  							'type':'text',
+  							'type':'text(%s)'%(entm-sttm),
   							'typeid': MESSAGE_TYPE_TEXT,
   							'dir':MESSAGE_DIR_DOWN,
   							'time':int(time())
@@ -128,12 +129,11 @@ def handlemessage(user, msg):
 	
 	return rets
 
-def whensubscribeevent(user, ctype='weixin'):
+def whensubscribeevent(user, ctype='weixin', ctx=None):
 	'''
 	用户订阅
 	'''
-	dbcon = get_connect()
-	dba = SinDBAccess(dbcon, debug=False)
+	dba = ctx.dba
 	typeid = 0
 	try:
 		typeid = EVENT_TYPEMAP[ctype]
@@ -150,12 +150,11 @@ def whensubscribeevent(user, ctype='weixin'):
 							})
 	return '欢迎订阅BuluBuluBuluz\n%s' % BOTTOMHELPFULL
 
-def whenunsubscribeevent(user, ctype='weixin'):
+def whenunsubscribeevent(user, ctype='weixin', ctx=None):
 	'''
 	用户取消订阅
 	'''
-	dbcon = get_connect()
-	dba = SinDBAccess(dbcon, debug=False)
+	dba = ctx.dba
 	typeid = 0
 	try:
 		typeid = EVENT_TYPEMAP[ctype]

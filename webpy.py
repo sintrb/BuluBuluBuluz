@@ -10,7 +10,13 @@ import json
 from Handlers import TencentWX 
 from bulu.Bulu import handlemessage
 from sinlibs.utils.strings import gentoken
+from sinlibs.db.dbbase import get_connect
 from bulu.Bulu import whensubscribeevent
+
+from sinlibs.db.SinDBAccess import SinDBAccess
+from sinlibs.db.SinKVDB import SinKVDB
+
+import traceback
 import hashlib
 
 web.config.debug = True
@@ -27,15 +33,30 @@ urls = (
 
 wxhandler = TencentWX()
 
-class WeiXinAPI(object):
+
+class Context():
+	pass
+
+
+class BubulBase():
+	def __init__(self):
+		self.ctx = Context()
+		self.ctx.con = get_connect()
+		self.ctx.dba = SinDBAccess(self.ctx.con, debug=False)
+		self.ctx.kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb', tag='bulu', cache=False, debug=False, create=True)
+
+class WeiXinAPI(BubulBase):		
 	def GET(self):
 		try:
 			web.header('Content-Type', 'text/xml; charset=utf-8')
 			data = web.data()
-			return wxhandler.process_request(parameters=web.input(), postdata=data)
+			return wxhandler.process_request(parameters=web.input(), postdata=data, context=self.ctx)
 		except:
 			web.header('Content-Type', 'text/html; charset=utf-8')
-			print 'fail. xml: %s' % web.data()
+# 			print 'fail. xml: %s' % web.data()
+# 			print '-------------------------'
+			errinfo = traceback.format_exc()
+			print errinfo
 		return render.errorequest()
 	def POST(self):
 		return self.GET()
@@ -45,7 +66,7 @@ class StaticFile:
 		print 'get static:', staticfile
 		web.seeother('/static/' + staticfile, False)
 
-class OnlineBulu(object):
+class OnlineBulu(BubulBase):
 	def GET(self):
 		web.header('Content-Type', 'text/html; charset=utf-8')
 		return render.onlinebulu()
@@ -54,13 +75,13 @@ class OnlineBulu(object):
 			usertk = hashlib.sha1(gentoken(l=20)).hexdigest()
 			web.setcookie('usertoken', usertk, 3600 * 24 * 365)
 			user = usertk
-			whensubscribeevent(usertk, 'web')
+			whensubscribeevent(usertk, 'web', self.ctx)
 		else:
 			user = web.cookies().get('usertoken')
 		msg = web.input(message='?').message
 		ret = {
 			   'status': True,
-			   'message': handlemessage(user, msg)
+			   'message': handlemessage(user, msg, self.ctx)
 			   }
 		return json.dumps(ret)
 

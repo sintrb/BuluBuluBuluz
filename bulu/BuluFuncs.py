@@ -7,6 +7,7 @@ Created on 2013-10-5
 
 from sinlibs.tools.ynulib import search_books, get_holdinginfo
 from SinLikeTerminal import SLTAddAttrs, PrefixDict
+from sinlibs.db.SinKVDB import SinKVDB
 import Bulu
 import types
 SPLITLINE = '-----------'
@@ -21,11 +22,11 @@ def is_num(s):
 	except:
 		return False
 
-@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键字即可.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
-def ynu_lib_search(user, msg, sesn):
+@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键字即可.\n如果我没有回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
+def ynu_lib_search(user, msg, sesn, ctx=None):
 	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
 	keyword = msg.strip()
-	rets = '抱歉,\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%BOTTOMHELPFULL
+	rets = '抱歉~~\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%BOTTOMHELPFULL
 	if len(keyword) > 0:
 		sesn = PrefixDict(rawdict=sesn, prefix='ynu_lib_search')
 		page = 1
@@ -72,7 +73,15 @@ def ynu_lib_search(user, msg, sesn):
 		else:
 			sesn['keyword'] = keyword
 			sesn['page'] = page
-			books = search_books(keyword, page=page)
+			
+			searchkey='%s_%s'%(keyword, page)
+			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False)
+			if searchkey in searchkvdb:
+				books = searchkvdb[searchkey]
+			else:
+				books = search_books(keyword, page=page)
+				if type(books) is types.ListType:
+					searchkvdb[searchkey] = books
 			if type(books) is types.ListType:
 				if books:
 					ixs = []
@@ -103,11 +112,11 @@ def ynu_lib_search(user, msg, sesn):
 
 
 @SLTAddAttrs(name='echo', help='回显测试\n给我消息我原样返回')
-def tool_echo(user, msg, sesn):
+def tool_echo(user, msg, sesn, ctx=None):
 	return msg
 
 @SLTAddAttrs(name='调试', help='调试模式,支持:\n who\n stc')
-def tool_debug(user, msg, sesn):
+def tool_debug(user, msg, sesn, ctx=None):
 	if msg == 'who':
 		return str(user)
 	if msg == 'stc':
@@ -124,7 +133,7 @@ def tool_debug(user, msg, sesn):
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
-def tool_config(user, msg, sesn):
+def tool_config(user, msg, sesn, ctx=None):
 	if msg == 'show':
 		ss = ['%s=%s'%(k, v) for (k,v) in Bulu.config.items()]
 		return '\n'.join(ss)
