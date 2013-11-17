@@ -5,9 +5,6 @@ Created on 2013-9-14
 @author: RobinTang
 '''
 
-from sinlibs.db.dbbase import get_connect
-from sinlibs.db.SinKVDB import SinKVDB
-
 from time import time
 from SinLikeTerminal import SinLikeTerminal
 from BuluFuncs import BOTTOMHELPFULL
@@ -100,6 +97,7 @@ def handlemessage(user, msg, ctx=None):
 		msg = msg.replace('？', '?')
 		sttm = time()
 		rets = curslt.process_message(user, msg, ctx)
+		print 'll:%d'%len(rets)
 		entm = time()
 	except:
 		errinfo = traceback.format_exc()
@@ -117,16 +115,15 @@ def handlemessage(user, msg, ctx=None):
 	  							'time':int(time())
 	  							}
 	  				)
-	dba.add_object(tb_message, {
-  							'userid':user,
-  							'message':rets,
-  							'type':'text(%s)'%(entm-sttm),
-  							'typeid': MESSAGE_TYPE_TEXT,
-  							'dir':MESSAGE_DIR_DOWN,
-  							'time':int(time())
-  							}
-  				)
-	
+	msgobj = {	'userid':user,
+				'message':rets,
+				'type':'text(%s)'%(entm-sttm),
+				'typeid': MESSAGE_TYPE_TEXT,
+				'dir':MESSAGE_DIR_DOWN,
+				'time':int(time())
+				}
+	dba.add_object(tb_message, msgobj)
+	ctx.msgobj = msgobj
 	return rets
 
 def whensubscribeevent(user, ctype='weixin', ctx=None):

@@ -24,6 +24,7 @@ def is_num(s):
 
 @SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键字即可.\n如果我没有回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
 def ynu_lib_search(user, msg, sesn, ctx=None):
+	rows = 20
 	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
 	keyword = msg.strip()
 	rets = '抱歉~~\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%BOTTOMHELPFULL
@@ -53,7 +54,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 				page = 1
 			keyword = sesn['keyword']
 		
-		if is_num(keyword):
+		if is_num(keyword) and sesn['books']:
 			ix = int(keyword)
 			stbks = sesn['books']
 			if stbks and ix >= 0 and ix <len(stbks):
@@ -68,44 +69,43 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 					rets = ynu_lib_ser_err
 			else:
 				spl = '\n%s\n' % SPLITLINE
-				bks = spl.join(['%d.%s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
+				bks = spl.join(['%d. %s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
 				return '输入的数字超出了范围!\n%s\n%s\n%s\n%s'%(LONGSPLITLINE, bks, LONGSPLITLINE, '输入数字查看明细')
 		else:
 			sesn['keyword'] = keyword
-			sesn['page'] = page
 			
-			searchkey='%s_%s'%(keyword, page)
-			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False)
+			searchkey='%s_r%s_p%s'%(keyword, rows, page)
+			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=False)
 			if searchkey in searchkvdb:
 				books = searchkvdb[searchkey]
 			else:
-				books = search_books(keyword, page=page)
+				books = search_books(keyword=keyword, page=page, rows=rows)
 				if type(books) is types.ListType:
 					searchkvdb[searchkey] = books
 			if type(books) is types.ListType:
-				if books:
-					ixs = []
-					bmp = {}
-					for book in books:
-						if book['index'] and len(book['index']):
-							ixs.append(book['index'])
-							bmp[book['index']] = book
-					if len(ixs):
-						ixs.sort()
-						spl = '\n%s\n' % SPLITLINE
-						stbks = [bmp[ix] for ix in ixs]
-						bks = spl.join(['%d.%s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
-						sesn['books'] = stbks
-						htip = '数字看明细'
-						pgt = '第%s页 N下页  '%page
-						if page>1:
-							pgt = '%sP上页\n'%pgt
-						pgt = '%s%s'%(pgt, htip)
-						rets = '%s :%d条\n%s\n%s\n%s\n%s' % (keyword, len(ixs), LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
-					elif page != 1:
-						rets = '%s :没有了\n%s\nP上一页' % (keyword, LONGSPLITLINE)
+				ixs = []
+				bmp = {}
+				for book in books:
+					if book['index'] and len(book['index']):
+						ixs.append(book['index'])
+						bmp[book['index']] = book
+				if len(ixs):
+					ixs.sort()
+					spl = '\n%s\n' % SPLITLINE
+					stbks = [bmp[ix] for ix in ixs]
+					bks = spl.join(['%d. %s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
+					sesn['books'] = stbks
+					htip = '数字看明细'
+					pgt = '第%s页 N下页  '%page
+					if page>1:
+						pgt = '%sP上页\n'%pgt
+					pgt = '%s%s'%(pgt, htip)
+					rets = '%s :%d条\n%s\n%s\n%s\n%s' % (keyword, len(ixs), LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
+					sesn['page'] = page
+				elif page != 1:
+					rets = '%s :没有了\n%s\n第%s页  P上一页' % (keyword, LONGSPLITLINE, page)
 				else:
-					pass
+					rets = '%s\n抱歉~~\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%(keyword, BOTTOMHELPFULL)
 			else:
 				rets = ynu_lib_ser_err
 	return rets
