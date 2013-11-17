@@ -15,10 +15,10 @@ try:
 	sys.setdefaultencoding("utf-8")
 except:
 	pass
-def search_books(keyword, way="title", page=1):
+def search_books(keyword, way="title", page=1, rows=20):
 # 	print keyword
 # 	keyword = urllib2.quote(keyword.encode('gbk'))
-	url = 'http://202.203.222.211/opac/search?rows=20&&q=%s&searchWay=%s&page=%s' % (keyword, way, page)
+	url = 'http://202.203.222.211/opac/search?rows=%s&&q=%s&searchWay=%s&page=%s' % (rows, keyword, way, page)
 	try:
 		html = urllib2.urlopen(url).read()
 	except urllib2.HTTPError:
