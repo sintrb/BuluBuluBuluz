@@ -32,12 +32,15 @@ def search_books(keyword, way="title", page=1):
 	while True and table != None:
 		rg = strings.strbetweenrange(table, '<tr>', '</tr>', starti=starti, contain=True)
 		if rg:
-			ihtm = table[rg[0]:rg[1]]
-			res = re.findall('<span class="bookmetaTitle">\s*<a href="[^"]*" id="title_([^"]*)">\s*([^<]*)\s*</a>', ihtm, re.IGNORECASE | re.MULTILINE)
-			bookid = res[0][0].strip()
-			name = res[0][1].strip()
-			books[bookid] = {'bookid':bookid, 'name':name, 'index':''}
-			starti = rg[1] + 1
+			try:
+				ihtm = table[rg[0]:rg[1]]
+				res = re.findall('<span class="bookmetaTitle">\s*<a href="[^"]*" id="title_([^"]*)">\s*([^<]*)\s*</a>', ihtm, re.IGNORECASE | re.MULTILINE)
+				bookid = res[0][0].strip()
+				name = res[0][1].strip()
+				books[bookid] = {'bookid':bookid, 'name':name, 'index':''}
+				starti = rg[1] + 1
+			except:
+				pass
 		else:
 			break
 	if len(books) == 0:
