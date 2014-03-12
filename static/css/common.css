@@ -1,0 +1,13 @@
+/* 公共样式 */
+
+.copyright{
+	/* display: none; */
+    font-family: "MicroSoft YaHei","SimHei";
+    margin: 10px 0 10px 0;
+    text-align: center;
+}
+.copyright span{
+    color: #666;
+    font-size: 10px;
+}
+
