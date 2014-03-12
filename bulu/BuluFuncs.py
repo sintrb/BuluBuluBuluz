@@ -5,15 +5,17 @@ Created on 2013-10-5
 @author: RobinTang
 '''
 
+SPLITLINE = '-----------'
+LONGSPLITLINE = '%s%s'%(SPLITLINE, SPLITLINE)
+BOTTOMHELP = '你可以发送问号(?)给我'
+BOTTOMHELPFULL = '%s\n%s' % (LONGSPLITLINE, BOTTOMHELP)
+
 from sinlibs.tools.ynulib import search_books, get_holdinginfo
 from SinLikeTerminal import SLTAddAttrs, PrefixDict
 from sinlibs.db.SinKVDB import SinKVDB
 import Bulu
 import types
-SPLITLINE = '-----------'
-LONGSPLITLINE = '%s%s'%(SPLITLINE, SPLITLINE)
-BOTTOMHELP = '你可以发送问号(?)给我'
-BOTTOMHELPFULL = '%s\n%s' % (LONGSPLITLINE, BOTTOMHELP)
+
 
 def is_num(s):
 	try:
@@ -27,7 +29,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 	rows = 20
 	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
 	keyword = msg.strip()
-	rets = '抱歉~~\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%BOTTOMHELPFULL
+	rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s'%(keyword, BOTTOMHELPFULL)
 	if len(keyword) > 0:
 		sesn = PrefixDict(rawdict=sesn, prefix='ynu_lib_search')
 		page = 1
@@ -75,7 +77,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 			sesn['keyword'] = keyword
 			
 			searchkey='%s_r%s_p%s'%(keyword, rows, page)
-			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=False)
+			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=True)
 			if searchkey in searchkvdb:
 				books = searchkvdb[searchkey]
 			else:
@@ -105,7 +107,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 				elif page != 1:
 					rets = '%s :没有了\n%s\n第%s页  P上一页' % (keyword, LONGSPLITLINE, page)
 				else:
-					rets = '%s\n抱歉~~\n没有找到相关图书.\n目前只支持单关键字,\n请试着简化一下关键字.\n%s'%(keyword, BOTTOMHELPFULL)
+					rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s'%(keyword, BOTTOMHELPFULL)
 			else:
 				rets = ynu_lib_ser_err
 	return rets
