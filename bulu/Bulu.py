@@ -75,10 +75,10 @@ def reset_all(ctx):
 	dba.create_table(tb_message, tpl_message, new=True)
 
 def handlemessage(user, msg, ctx=None):
-	if msg == '.reset' and user == 'ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
+# 	if msg == '.reset':# and user == 'ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
 		# 该操作很危险，会重置数据库，只允许特定用户
-		reset_all(ctx)
-		return 'reset ok'
+# 		reset_all(ctx)
+# 		return 'reset ok'
 	dba = ctx.dba
 	sttm = entm = 0
 	dba.add_object(tb_message, {
