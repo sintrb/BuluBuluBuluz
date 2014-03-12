@@ -45,14 +45,14 @@ class BubulBase():
 		self.ctx = Context()
 		self.ctx.con = get_connect()
 		self.ctx.dba = SinDBAccess(self.ctx.con, debug=False)
-		self.ctx.kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb', tag='bulu', cache=False, debug=False, create=False)
+		self.ctx.kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb', tag='bulu', cache=False, debug=False, create=True)
 
 class ShowMsg(BubulBase):
 	def GET(self, userid, times):
 		res = self.ctx.dba.get_objects(tb_message, columns='message', conditions={'userid':userid, 'time':times, 'typeid': MESSAGE_TYPE_TEXT,'dir':MESSAGE_DIR_DOWN}, condtype='and', limit=1, order='id desc')
 		if res and len(res):
 			lmsg = res[0]['message']
-			kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb_showmsg', tag='bulu', cache=False, debug=False, create=False)
+			kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb_showmsg', tag='bulu', cache=False, debug=False, create=True)
 			ct = 0
 			ky = 'count_%s_%s'%(userid, times)
 			try:
@@ -77,8 +77,8 @@ class WeiXinAPI(BubulBase):
 			web.header('Content-Type', 'text/html; charset=utf-8')
 # 			print 'fail. xml: %s' % web.data()
 # 			print '-------------------------'
-			errinfo = traceback.format_exc()
-			print errinfo
+# 			errinfo = traceback.format_exc()
+# 			print errinfo
 		return render.errorequest()
 	def POST(self):
 		return self.GET()
