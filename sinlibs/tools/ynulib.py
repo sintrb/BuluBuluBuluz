@@ -15,14 +15,30 @@ try:
 	sys.setdefaultencoding("utf-8")
 except:
 	pass
+
+def get_seachurl(keyword, way="title", page=1, rows=20):
+	kws = [kw for kw in keyword.split() if len(kw)>0]
+	if len(kws) == 1:
+		return 'http://202.203.222.211/opac/search?rows=%s&&q=%s&searchWay=%s&page=%s' % (rows, kws[0], way, page)
+	else:
+		qa = []
+		for i in range(len(kws)):
+			kw = kws[i].strip()
+			qa.append('searchWay%d=title&q%d=%s&logical%d=AND'%(i,i,kw,i))
+		qs = '&'.join(qa)
+		return 'http://202.203.222.211/opac/search?&searchSource=reader&inside=&booktype=&marcformat=&sortWay=score&sortOrder=desc&startPubdate=&endPubdate=&rows=%s&page=%s&hasholding=1&%s'%(rows, page, qs)
 def search_books(keyword, way="title", page=1, rows=20):
 # 	print keyword
 # 	keyword = urllib2.quote(keyword.encode('gbk'))
-	url = 'http://202.203.222.211/opac/search?rows=%s&&q=%s&searchWay=%s&page=%s' % (rows, keyword, way, page)
+	keyword = keyword.strip()
+	url = get_seachurl(keyword, way, page, rows)
 	try:
 		html = urllib2.urlopen(url).read()
 	except urllib2.HTTPError:
-		return []
+		try:
+			html = urllib2.urlopen(url).read()
+		except urllib2.HTTPError:
+			return []
 	except:
 		return None
 	
@@ -76,18 +92,26 @@ def get_holdinginfo(bookid):
 		except:
 			pass
 	return holds
-if __name__ == '__main__':
+
+
+def togbk(us):
+	return us
+
+def test():
 	import types
-	books = search_books(r'在坚持自己了解')
+	books = search_books(r'Love Hate ')
 	if type(books) is types.ListType:
 		if books:
 			print 'ct:%d'%len(books)
-# 			for book in books:
-# 				print book['name']
+			for book in books:
+				print togbk(book['name'])
 		else:
 			print 'empty'
 	else:
 		print 'fail'
+
+if __name__ == '__main__':
+	test()
 
 
 
