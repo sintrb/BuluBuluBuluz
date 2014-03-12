@@ -17,5 +17,6 @@ echo 'curpath: ' $curpath
 cd $curpath
 
 cp -rf $tmppath/* $curpath
+find | grep -v '.svn' | xargs svn add
 svn commit -m ''
 
