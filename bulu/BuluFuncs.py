@@ -133,15 +133,15 @@ def tool_debug(user, msg, sesn, ctx=None):
 		unsub = dba.get_count(tb_event, conditions={'eventid':2})
 		mcount = dba.get_count(tb_message, conditions={'dir':1})
 		if 'sub' in sesn:
-			pres = '新增:\n 订阅:%s\n 退订:%s\n 消息:%s\n------\n'%(sub-sesn['sub'], unsub-sesn['unsub'], mcount-sesn['mcount'])
+			pres = '新增\n---订阅:%s\n---退订:%s\n---消息:%s\n'%(sub-sesn['sub'], unsub-sesn['unsub'], mcount-sesn['mcount'])
 		else:
 			pres = ''
-		sesn['sub'] = sub
-		sesn['unsub'] = unsub
-		sesn['count'] = count
-		sesn['mcount'] = mcount
+		sesn['sub'] = int(sub)
+		sesn['unsub'] = int(unsub)
+		sesn['count'] = int(count)
+		sesn['mcount'] = int(mcount)
 		
-		return '%s\n订阅: %s\n退订: %s\n剩余: %s\n总数: %s\n\n消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
+		return '%s统计\n---订阅: %s\n---退订: %s\n---剩余: %s\n---总数: %s\n---消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
