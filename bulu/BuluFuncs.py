@@ -119,6 +119,7 @@ def tool_echo(user, msg, sesn, ctx=None):
 
 @SLTAddAttrs(name='调试', help='调试模式,支持:\n who\n stc')
 def tool_debug(user, msg, sesn, ctx=None):
+	sesn = PrefixDict(rawdict=sesn, prefix='debug')
 	if msg == 'who':
 		return str(user)
 	if msg == 'stc':
@@ -131,7 +132,16 @@ def tool_debug(user, msg, sesn, ctx=None):
 		sub = dba.get_count(tb_event, conditions={'eventid':1})
 		unsub = dba.get_count(tb_event, conditions={'eventid':2})
 		mcount = dba.get_count(tb_message, conditions={'dir':1})
-		return '订阅: %s\n退订: %s\n剩余: %s\n总数: %s\n\n消息:%s'%(sub, unsub, sub-unsub, count, mcount)
+		if 'sub' in sesn:
+			pres = '新增:\n 订阅:%s\n 退订:%s\n 消息:%s\n------\n'%(sub-sesn['sub'], unsub-sesn['unsub'], mcount-sesn['mcount'])
+		else:
+			pres = ''
+		sesn['sub'] = sub
+		sesn['unsub'] = unsub
+		sesn['count'] = count
+		sesn['mcount'] = mcount
+		
+		return '%s\n订阅: %s\n退订: %s\n剩余: %s\n总数: %s\n\n消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
