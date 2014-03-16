@@ -129,8 +129,8 @@ def tool_debug(user, msg, sesn, ctx=None):
 		dbcon = get_connect()
 		dba = SinDBAccess(dbcon, debug=False)
 		count = dba.get_count(tb_event)
-		sub = dba.get_count(tb_event, conditions={'eventid':1, 'ctype':'weixin'})
-		unsub = dba.get_count(tb_event, conditions={'eventid':2, 'ctype':'weixin'})
+		sub = dba.get_count(tb_event, conditions={'eventid':1, 'type':'weixin'})
+		unsub = dba.get_count(tb_event, conditions={'eventid':2, 'type':'weixin'})
 		mcount = dba.get_count(tb_message, conditions={'dir':1})
 		if 'sub' in sesn:
 			pres = '新增\n---订阅:%s\n---退订:%s\n---消息:%s\n'%(sub-sesn['sub'], unsub-sesn['unsub'], mcount-sesn['mcount'])
