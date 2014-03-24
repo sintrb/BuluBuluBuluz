@@ -120,11 +120,12 @@ def tool_echo(user, msg, sesn, ctx=None):
 
 @SLTAddAttrs(name='调试', help='调试模式,支持:\n who\n stc')
 def tool_debug(user, msg, sesn, ctx=None):
+	from Bulu import tb_event, tb_message
+	
 	sesn = PrefixDict(rawdict=sesn, prefix='debug')
 	if msg == 'who':
 		return str(user)
-	if msg == 'stc':
-		from Bulu import tb_event, tb_message
+	elif msg == 'stc':
 		dbcon = ctx.con
 		dba = SinDBAccess(dbcon, debug=False)
 		count = dba.get_count(tb_event)
@@ -141,6 +142,9 @@ def tool_debug(user, msg, sesn, ctx=None):
 		sesn['mcount'] = int(mcount)
 		
 		return '%s统计\n---订阅: %s\n---退订: %s\n---剩余: %s\n---总数: %s\n---消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
+	elif msg == 'last':
+		dba = SinDBAccess(ctx.con, debug=False)
+		return '\n'.join([o['message'] for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
