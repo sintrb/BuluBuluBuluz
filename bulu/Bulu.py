@@ -93,11 +93,11 @@ def handlemessage(user, msg, ctx=None):
 	rets = '未处理'
 	try:
 		kvdb = ctx.kvdb
-		curslt = SinLikeTerminal(kvdb, bulu_route)
+		curslt = SinLikeTerminal(kvdb, bulu_route, debug=False)
 		msg = msg.replace('？', '?')
 		sttm = time()
 		rets = curslt.process_message(user, msg, ctx)
-		print 'll:%d'%len(rets)
+# 		print 'll:%d'%len(rets)
 		entm = time()
 	except:
 		errinfo = traceback.format_exc()
