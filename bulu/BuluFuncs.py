@@ -118,7 +118,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 def tool_echo(user, msg, sesn, ctx=None):
 	return msg
 
-@SLTAddAttrs(name='调试', help='调试模式,支持:\n who\n stc')
+@SLTAddAttrs(name='调试', help='调试模式,支持:\n who\n stc\n last')
 def tool_debug(user, msg, sesn, ctx=None):
 	from Bulu import tb_event, tb_message
 	
