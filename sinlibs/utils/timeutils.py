@@ -7,12 +7,12 @@ Created on 2014-3-24
 import datetime
 import time
 
-def str2dtime(s):
-    return datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
-def dtime2str(dt):
-    return time.strftime('%Y-%m-%d %H:%M:%S', dt.timetuple())
-def stamp2str(stamp):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(stamp))
+def str2dtime(s, tpl='%Y-%m-%d %H:%M:%S'):
+    return datetime.datetime.strptime(s, tpl)
+def dtime2str(dt, tpl='%Y-%m-%d %H:%M:%S'):
+    return time.strftime(tpl, dt.timetuple())
+def stamp2str(stamp, tpl='%Y-%m-%d %H:%M:%S'):
+    return time.strftime(tpl, time.localtime(stamp))
 def dtime2stamp(dt):
     return time.mktime(dt.timetuple())
 
