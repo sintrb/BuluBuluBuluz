@@ -105,10 +105,11 @@ class SinLikeTerminal():
 	__ROUTE_SPLIT__ = '.'
 	__USER_ROUTE__ = 'route'
 	
-	def __init__(self, sessinstore={}, route=None):
+	def __init__(self, sessinstore={}, route=None, debug=False):
 		self.session = sessinstore
 		self.route_list = []
 		self.route = route
+		self.debug = debug
 	
 	def __get_current_routes__(self, usersession):
 		return None if not SinLikeTerminal.__USER_ROUTE__ in usersession else usersession[SinLikeTerminal.__USER_ROUTE__]
@@ -143,7 +144,8 @@ class SinLikeTerminal():
 	
 	def process_message(self, uid, message, context):
 		usersession = PrefixDict(rawdict=self.session, prefix=str(uid))
-		print self.__get_current_routes__(usersession)
+		if self.debug:
+			print self.__get_current_routes__(usersession)
 		if message[0] == SinLikeTerminal.__PREFIX_BACK__:
 			# back
 			routes = self.__get_current_routes__(usersession)
