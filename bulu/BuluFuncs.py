@@ -13,6 +13,7 @@ BOTTOMHELPFULL = '%s\n%s' % (LONGSPLITLINE, BOTTOMHELP)
 from sinlibs.tools.ynulib import search_books, get_holdinginfo
 from SinLikeTerminal import SLTAddAttrs, PrefixDict
 from sinlibs.db.SinKVDB import SinKVDB
+from sinlibs.db.SinDBAccess import SinDBAccess
 import Bulu
 import types
 
@@ -123,10 +124,8 @@ def tool_debug(user, msg, sesn, ctx=None):
 	if msg == 'who':
 		return str(user)
 	if msg == 'stc':
-		from sinlibs.db.dbbase import get_connect
-		from sinlibs.db.SinDBAccess import SinDBAccess
 		from Bulu import tb_event, tb_message
-		dbcon = get_connect()
+		dbcon = ctx.con
 		dba = SinDBAccess(dbcon, debug=False)
 		count = dba.get_count(tb_event)
 		sub = dba.get_count(tb_event, conditions={'eventid':1, 'type':'weixin'})
