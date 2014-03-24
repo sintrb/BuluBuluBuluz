@@ -143,8 +143,9 @@ def tool_debug(user, msg, sesn, ctx=None):
 		
 		return '%s统计\n---订阅: %s\n---退订: %s\n---剩余: %s\n---总数: %s\n---消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
 	elif msg == 'last':
+		from sinlibs.utils.timeutils import stamp2str
 		dba = SinDBAccess(ctx.con, debug=False)
-		return '\n'.join([o['message'] for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
+		return '\n'.join(['%s %s'%(stamp2str(int(o['time']), '%m-%d %H:%M'), o['message']) for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
