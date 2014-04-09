@@ -17,6 +17,8 @@ from sinlibs.db.SinDBAccess import SinDBAccess
 from sinlibs.db.SinKVDB import SinKVDB
 from bulu.Bulu import tb_message, MESSAGE_TYPE_TEXT, MESSAGE_DIR_DOWN
 
+from auto.AutoTest import runtest
+
 import traceback
 import hashlib
 
@@ -27,6 +29,7 @@ web.render = render
 
 urls = (
 		'/api', 'WeiXinAPI',
+		'/autotest', 'AutoTest',
 		'/showmsg/([^/]*)/([^/]*)', 'ShowMsg',
 		'/([^/]*.ico)', 'StaticFile',
 		'.*', 'OnlineBulu',
@@ -106,6 +109,10 @@ class OnlineBulu(BubulBase):
 			   'message': handlemessage(user, msg, self.ctx)
 			   }
 		return json.dumps(ret)
+
+class AutoTest(BubulBase):
+	def GET(self):
+		return runtest(self.ctx)
 
 app = web.application(urls, globals())
 
