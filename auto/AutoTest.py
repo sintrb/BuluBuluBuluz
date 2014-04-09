@@ -27,25 +27,25 @@ testlist = [
 
 
 
-def runtest(cxt):
-    if not 'reuslts' in cxt:
-        cxt['reuslts'] = []
-    if not 'testindex' in cxt:
-        cxt['testindex'] = 0
+def runtest(kvdb):
+    if not 'reuslts' in kvdb:
+        kvdb['reuslts'] = []
+    if not 'testindex' in kvdb:
+        kvdb['testindex'] = 0
     
-    if cxt['testindex'] >= len(testlist):
+    if kvdb['testindex'] >= len(testlist):
         keys = ['name', 'cost', 'result', 'start']
-        mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in cxt['reuslts']])
-        cxt['reuslts'] = []
-        cxt['testindex'] = 0
+        mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in kvdb['reuslts']])
+        kvdb['reuslts'] = []
+        kvdb['testindex'] = 0
         return mail
     else:
-        test = testlist[cxt['testindex']]
+        test = testlist[kvdb['testindex']]
         sttime = time.time()
         okflag = test.runtest()
         edtime = time.time()
         oftime = edtime-sttime
-        cxt['reuslts'].append(
+        kvdb['reuslts'].append(
                               {
                                'name':test.name,
                                'cost':oftime,
@@ -53,7 +53,7 @@ def runtest(cxt):
                                'start':timeutils.stamp2str(sttime)
                                }
                               )
-        cxt['testindex'] = cxt['testindex'] + 1
+        kvdb['testindex'] = kvdb['testindex'] + 1
         return None
 
 

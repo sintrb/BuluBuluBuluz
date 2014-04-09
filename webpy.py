@@ -112,7 +112,7 @@ class OnlineBulu(BubulBase):
 
 class AutoTest(BubulBase):
 	def GET(self):
-		return runtest(self.ctx)
+		return runtest(self.ctx.kvdb)
 
 app = web.application(urls, globals())
 
