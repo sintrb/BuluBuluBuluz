@@ -32,6 +32,7 @@ def search_books(keyword, way="title", page=1, rows=20):
 # 	keyword = urllib2.quote(keyword.encode('gbk'))
 	keyword = keyword.strip()
 	url = get_seachurl(keyword, way, page, rows)
+#  	print url
 	try:
 		html = urllib2.urlopen(url).read()
 	except urllib2.HTTPError:
@@ -50,18 +51,23 @@ def search_books(keyword, way="title", page=1, rows=20):
 		if rg:
 			try:
 				ihtm = table[rg[0]:rg[1]]
-				res = re.findall('<span class="bookmetaTitle">\s*<a href="[^"]*" id="title_([^"]*)">\s*([^<]*)\s*</a>', ihtm, re.IGNORECASE | re.MULTILINE)
+				# 1.0
+				# patn = '<span class="bookmetaTitle">\s*<a href="[^"]*" id="title_([^"]*)">\s*([^<]*)\s*</a>'
+				
+				# 1.1 2014-04-09
+				patn = '<span class="bookmetaTitle">\s*<a href="[^"]*" id="title_([^"]*)"[^/]*>\s*([^<]*)\s*</a>'
+				res = re.findall(patn, ihtm, re.IGNORECASE | re.MULTILINE)
 				bookid = res[0][0].strip()
-				name = res[0][1].strip()
+				name = res[0][1].strip().strip(' /')
+				
 				books[bookid] = {'bookid':bookid, 'name':name, 'index':''}
-				starti = rg[1] + 1
 			except:
-				pass
+				print 'error'
+			starti = rg[1] + 1
 		else:
 			break
 	if len(books) == 0:
 		return []
-	
 	url = 'http://202.203.222.211/opac/book/callnos?bookrecnos=%s' % (','.join(books.keys()))
 	try:
 		xml = urllib2.urlopen(url).read()
@@ -99,7 +105,7 @@ def togbk(us):
 
 def test():
 	import types
-	books = search_books(r'Love Hate ')
+	books = search_books(r'Java')
 	if type(books) is types.ListType:
 		if books:
 			print 'ct:%d'%len(books)
