@@ -38,6 +38,7 @@ def runtest(kvdb):
         mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in kvdb['reuslts']])
         kvdb['reuslts'] = []
         kvdb['testindex'] = 0
+        kvdb['mail'] = mail
         return mail
     else:
         test = testlist[kvdb['testindex']]
@@ -60,7 +61,6 @@ def runtest(kvdb):
 
 if __name__ == '__main__':
     cxt = {}
-    print runtest(cxt)
     print runtest(cxt)
     print runtest(cxt)
 
