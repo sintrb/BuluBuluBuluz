@@ -49,8 +49,8 @@ def runtest(kvdb):
         if (time.time() - kvdb['premailtime']) > (60*60*12) or (False in [r['result'] for r in kvdb['reuslts']] and (time.time() - kvdb['premailtime']) > (60*60)):
             web.sendmail(web.config.smtp_username, 'trbbadboy@qq.com', 'AutoTest', mail)
             kvdb['premailtime'] = time.time()
-        
-        return mail
+            return mail 
+        return 'unmail~'
     else:
         test = testlist[testindex]
         sttime = time.time()
