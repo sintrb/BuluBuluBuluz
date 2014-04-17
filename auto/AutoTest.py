@@ -7,6 +7,7 @@ Created on 2014-4-9
 from sinlibs.tools import ynulib
 from sinlibs.utils import timeutils 
 import time
+import json
 class Test:
     def __init__(self, name):
         self.name = name
@@ -30,32 +31,35 @@ testlist = [
 def runtest(kvdb):
     if not 'reuslts' in kvdb:
         kvdb['reuslts'] = []
-    if not 'testindex' in kvdb:
+    if not 'testindex' in kvdb or kvdb['testindex'] == None:
         kvdb['testindex'] = 0
+    testindex = 0 if kvdb['testindex']==None else kvdb['testindex']
     
-    if kvdb['testindex'] >= len(testlist):
-        keys = ['name', 'cost', 'result', 'start']
+
+    if testindex >= len(testlist):
+        keys = ['name', 'cost', 'result', 'start', 'message']
         mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in kvdb['reuslts']])
         kvdb['reuslts'] = []
         kvdb['testindex'] = 0
-        kvdb['mail'] = mail
         return mail
     else:
-        test = testlist[kvdb['testindex']]
+        test = testlist[testindex]
         sttime = time.time()
         okflag = test.runtest()
         edtime = time.time()
         oftime = edtime-sttime
-        kvdb['reuslts'].append(
-                              {
-                               'name':test.name,
-                               'cost':oftime,
-                               'result':okflag,
-                               'start':timeutils.stamp2str(sttime)
-                               }
-                              )
-        kvdb['testindex'] = kvdb['testindex'] + 1
-        return None
+        tres = {
+                 'name':test.name,
+                 'cost':oftime,
+                 'result':okflag,
+                 'start':timeutils.stamp2str(sttime),
+                 'message':okflag
+                 }
+        result = kvdb['reuslts']
+        result.append(tres)
+        kvdb['reuslts'] = result
+        kvdb['testindex'] = testindex + 1
+        return json.dumps(tres)
 
 
 

@@ -112,7 +112,7 @@ class OnlineBulu(BubulBase):
 
 class AutoTest():
 	def __init__(self):
-		self.kvdb = SinKVDB(get_connect(), table='tb_bulu_kvdb_autotest', cache=True, debug=False, create=True)
+		self.kvdb = SinKVDB(get_connect(), table='tb_bulu_kvdb_autotest', tag='bulu', cache=True, debug=False, create=True)
 	def GET(self):
 		return runtest(self.kvdb)
 
