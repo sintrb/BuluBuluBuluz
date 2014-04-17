@@ -1,4 +1,11 @@
----
+
 name: bulubulubuluz
 version: 1
-...
+
+cron:
+    - description: another cron test
+      url: autotest
+      schedule: every 5 mins
+      timezone: Beijing
+
+

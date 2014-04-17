@@ -8,6 +8,8 @@ from sinlibs.tools import ynulib
 from sinlibs.utils import timeutils 
 import time
 import json
+import web
+
 class Test:
     def __init__(self, name):
         self.name = name
@@ -33,6 +35,8 @@ def runtest(kvdb):
         kvdb['reuslts'] = []
     if not 'testindex' in kvdb or kvdb['testindex'] == None:
         kvdb['testindex'] = 0
+    if not 'premailtime' in kvdb:
+        kvdb['premailtime'] = 0
     testindex = 0 if kvdb['testindex']==None else kvdb['testindex']
     
 
@@ -41,6 +45,11 @@ def runtest(kvdb):
         mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in kvdb['reuslts']])
         kvdb['reuslts'] = []
         kvdb['testindex'] = 0
+        
+        if (time.time() - kvdb['premailtime']) > (60*60*12) or (False in [r['result'] for r in kvdb['reuslts']] and (time.time() - kvdb['premailtime']) > (60*60)):
+            web.sendmail(web.config.smtp_username, 'trbbadboy@qq.com', 'AutoTest', mail)
+            kvdb['premailtime'] = time.time()
+        
         return mail
     else:
         test = testlist[testindex]
@@ -64,9 +73,10 @@ def runtest(kvdb):
 
 
 if __name__ == '__main__':
+    print time.time()
     cxt = {}
-    print runtest(cxt)
-    print runtest(cxt)
+#     print runtest(cxt)
+#     print runtest(cxt)
 
 
 

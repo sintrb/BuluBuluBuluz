@@ -53,7 +53,7 @@ class SinKVDB(object):
     convmap = dict(((a[0], a[2]) for a in maparr))
     valumap = dict(((a[1], a[3]) for a in maparr))
     
-    def __init__(self, dbcon=None, table=None, tag='', cache=True, cachesize=10, reset=False, debug = False, autocommit=False):
+    def __init__(self, dbcon=None, table=None, tag=None, cache=True, cachesize=10, reset=False, debug = False, autocommit=False, create=True):
         '''
         A Python Key-Value Database.
         @dbcon Database connection
@@ -75,10 +75,11 @@ class SinKVDB(object):
         self.cachesize = cachesize
         
         self.__pingdb__()
-        if reset:
-            self.reset_table()
-        else:
-            self.__create_table__()
+        if create:
+            if reset:
+                self.reset_table()
+            else:
+                self.__create_table__()
         
         # internal cache
         if self.cache:

@@ -24,6 +24,13 @@ import hashlib
 
 web.config.debug = True
 
+web.config.smtp_server = 'smtp.163.com'
+web.config.smtp_port = 25
+web.config.smtp_username = 'itsjustamail@163.com'
+web.config.smtp_password = 'justamail'
+web.config.smtp_starttls = True
+
+
 render = web.template.render('templates/')
 web.render = render
 
