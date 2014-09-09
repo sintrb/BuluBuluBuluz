@@ -184,5 +184,13 @@
       }
     }
     
+
+    J(function(){
+        var r = /q=([^=]*)/.exec(window.location.hash);
+        if(r){
+          sendmessage(r[1]);
+        }
+    });
+
   </script>
 </html>
