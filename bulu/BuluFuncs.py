@@ -16,6 +16,7 @@ from sinlibs.db.SinKVDB import SinKVDB
 from sinlibs.db.SinDBAccess import SinDBAccess
 import Bulu
 import types
+import time
 
 
 def is_num(s):
@@ -79,9 +80,19 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 			
 			searchkey='%s_r%s_p%s'%(keyword, rows, page)
 			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=True)
+			books = None
+			iscache = False
 			if searchkey in searchkvdb:
-				books = searchkvdb[searchkey]
-			else:
+				try:
+					modifytime = searchkvdb.get_one(searchkey)['modifytime']
+					if (time.time() - modifytime)<(3600*24):
+						# 缓存一天
+						books = searchkvdb[searchkey]
+						iscache = True
+				except:
+					print 'error'
+					pass
+			if not books:
 				books = search_books(keyword=keyword, page=page, rows=rows)
 				if type(books) is types.ListType:
 					searchkvdb[searchkey] = books
@@ -103,8 +114,11 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 					if page>1:
 						pgt = '%sP上页\n'%pgt
 					pgt = '%s%s'%(pgt, htip)
-					rets = '%s :%d条\n%s\n%s\n%s\n%s' % (keyword, len(ixs), LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
+					tip = (iscache and '条(来自缓存)') or '条'
+					rets = '%s :%d%s\n%s\n%s\n%s\n%s' % (keyword, len(ixs), tip, LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
 					sesn['page'] = page
+					if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc','ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
+						rets = '/:heart%s'%rets	# yeah, the heart is for you
 				elif page != 1:
 					rets = '%s :没有了\n%s\n第%s页  P上一页' % (keyword, LONGSPLITLINE, page)
 				else:
@@ -148,7 +162,7 @@ def tool_debug(user, msg, sesn, ctx=None):
 		return '\n'.join(['%s %s'%(stamp2str(int(o['time']), '%m-%d %H:%M'), o['message']) for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
 	return 'unkown'
 
-@SLTAddAttrs(name='设置模式', help='设置模式\nkey=value')
+@SLTAddAttrs(name='设置模式', help='设置模式\nkey=value\nshow')
 def tool_config(user, msg, sesn, ctx=None):
 	if msg == 'show':
 		ss = ['%s=%s'%(k, v) for (k,v) in Bulu.config.items()]
@@ -157,7 +171,7 @@ def tool_config(user, msg, sesn, ctx=None):
 	kvs = msg.split('=')
 	if len(kvs)==2:
 		k = kvs[0].strip()
-		v = eval(kvs[1].strip())
+		v = eval(kvs[1].replace("(", "").replace(")", "").strip())
 		Bulu.config[k] = v
 		ss = ['%s=%s'%(k, v) for (k,v) in Bulu.config.items()]
 		return '\n'.join(ss)
