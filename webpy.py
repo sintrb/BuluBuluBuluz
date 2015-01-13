@@ -21,7 +21,10 @@ from auto.AutoTest import runtest
 
 import traceback
 import hashlib
+import sys
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
 web.config.debug = True
 
 web.config.smtp_server = 'smtp.163.com'

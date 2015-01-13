@@ -29,6 +29,7 @@ def is_num(s):
 @SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键字即可.\n如果我没有回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
 def ynu_lib_search(user, msg, sesn, ctx=None):
 	rows = 20
+	usecache = False
 	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
 	keyword = msg.strip()
 	rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s'%(keyword, BOTTOMHELPFULL)
@@ -82,7 +83,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=True)
 			books = None
 			iscache = False
-			if searchkey in searchkvdb:
+			if usecache and searchkey in searchkvdb:
 				try:
 					modifytime = searchkvdb.get_one(searchkey)['modifytime']
 					if (time.time() - modifytime)<(3600*24):
@@ -96,26 +97,20 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 				books = search_books(keyword=keyword, page=page, rows=rows)
 				if type(books) is types.ListType:
 					searchkvdb[searchkey] = books
+			elif type(books) is types.ListType:
+				books = [b for b in books if b['index']]
 			if type(books) is types.ListType:
-				ixs = []
-				bmp = {}
-				for book in books:
-					if book['index'] and len(book['index']):
-						ixs.append(book['index'])
-						bmp[book['index']] = book
-				if len(ixs):
-					ixs.sort()
+				if len(books):
 					spl = '\n%s\n' % SPLITLINE
-					stbks = [bmp[ix] for ix in ixs]
-					bks = spl.join(['%d. %s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
-					sesn['books'] = stbks
+					bks = spl.join(['%d. %s - %s (%s)' % (ix, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))])
+					sesn['books'] = books
 					htip = '数字看明细'
 					pgt = '第%s页 N下页  '%page
 					if page>1:
 						pgt = '%sP上页\n'%pgt
 					pgt = '%s%s'%(pgt, htip)
 					tip = (iscache and '条(来自缓存)') or '条'
-					rets = '%s :%d%s\n%s\n%s\n%s\n%s' % (keyword, len(ixs), tip, LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
+					rets = '%s :%d%s\n%s\n%s\n%s\n%s' % (keyword, len(books), tip, LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
 					sesn['page'] = page
 					if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc','ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
 						rets = '/:heart%s'%rets	# yeah, the heart is for you
