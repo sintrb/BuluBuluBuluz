@@ -74,7 +74,7 @@ def search_books(keyword, way="", page=1, rows=20):
 				except:
 					pass
 				try:
-					book['isbn'] = re.findall('express_isbn="([^"]*)"', ihtm)[0]
+					book['isbn'] = re.findall('isbn="([^"]*)"', ihtm)[0]
 				except:
 					pass
 				books[bookid] = book
@@ -117,9 +117,12 @@ def get_holdinginfo(bookid):
 			pass
 	return holds
 
-def get_bookinfo_by_isbn(isbn):
-	# http://api.interlib.com.cn/interlibopac/websearch/metares?cmdACT=getImages&type=0&isbns=7506023474
-	pass
+def get_bookinfo_by_isbn(isbns):
+	if type(isbns) == type([]):
+		isbns = ','.join(isbns)
+	isbns = isbns.replace('-', '')
+	url = 'http://api.interlib.com.cn/interlibopac/websearch/metares?cmdACT=getImages&type=0&callback=S&isbns=%s'%isbns
+	print get_html(url)
 
 def togbk(us):
 	return us
@@ -131,14 +134,15 @@ def test(k="Java"):
 		if books:
 			print 'ct:%d'%len(books)
 			for book in books:
-				print togbk(book['name']), togbk(book['author'])
+				print '%s %s'%(book['name'], book)
 		else:
 			print 'empty'
 	else:
 		print 'fail'
 
 if __name__ == '__main__':
-	test('图像融合')
+# 	test('图像融合')
+	get_bookinfo_by_isbn('978-7-5641-4659-7')
 
 
 
