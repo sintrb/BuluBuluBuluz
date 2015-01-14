@@ -62,24 +62,24 @@ class BubulBase():
 
 class ShowMsg(BubulBase):
 	def GET(self, userid, times):
-		res = self.ctx.dba.get_objects(tb_message, columns='message', conditions={'userid':userid, 'time':times, 'typeid': MESSAGE_TYPE_TEXT,'dir':MESSAGE_DIR_DOWN}, condtype='and', limit=1, order='id desc')
+		res = self.ctx.dba.get_objects(tb_message, columns='message', conditions={'userid':userid, 'time':times, 'typeid': MESSAGE_TYPE_TEXT, 'dir':MESSAGE_DIR_DOWN}, condtype='and', limit=1, order='id desc')
 		if res and len(res):
 			lmsg = res[0]['message']
 			kvdb = SinKVDB(self.ctx.con, table='tb_bulu_kvdb_showmsg', tag='bulu', cache=False, debug=False, create=True)
 			ct = 0
-			ky = 'count_%s_%s'%(userid, times)
+			ky = 'count_%s_%s' % (userid, times)
 			try:
 				ct = int(kvdb[ky])
 			except:
 				pass
 			ct = ct + 1
 			kvdb[ky] = ct
-			return render.showmsg(msg = lmsg.replace('\n', '<br />'), count=ct)
+			return render.showmsg(msg=lmsg.replace('\n', '<br />'), count=ct)
 # 			return lmsg
 		else:
-			return render.showmsg(msg = '消息不存在或者已经过期~', count='o0O@')
+			return render.showmsg(msg='消息不存在或者已经过期~', count='o0O@')
 
-class WeiXinAPI(BubulBase):		
+class WeiXinAPI(BubulBase):
 	def GET(self):
 		try:
 			web.header('Content-Type', 'text/xml; charset=utf-8')

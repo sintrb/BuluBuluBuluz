@@ -17,21 +17,21 @@ except:
 	pass
 
 def get_seachurl(keyword, way="title", page=1, rows=20):
-	kws = [kw for kw in keyword.split() if len(kw)>0]
+	kws = [kw for kw in keyword.split() if len(kw) > 0]
 	if len(kws) == 1:
 		return 'http://202.203.222.211/opac/search?rows=%s&q=%s&searchWay=%s&page=%s' % (rows, kws[0], way, page)
 	else:
 		qa = []
 		for i in range(len(kws)):
 			kw = kws[i].strip()
-			qa.append('searchWay%d=title&q%d=%s&logical%d=OR'%(i,i,kw,i))
+			qa.append('searchWay%d=title&q%d=%s&logical%d=OR' % (i, i, kw, i))
 		qs = '&'.join(qa)
-		return 'http://202.203.222.211/opac/search?&searchSource=reader&inside=&booktype=&marcformat=&sortWay=score&sortOrder=desc&startPubdate=&endPubdate=&rows=%s&page=%s&hasholding=1&%s'%(rows, page, qs)
+		return 'http://202.203.222.211/opac/search?&searchSource=reader&inside=&booktype=&marcformat=&sortWay=score&sortOrder=desc&startPubdate=&endPubdate=&rows=%s&page=%s&hasholding=1&%s' % (rows, page, qs)
 	
 def get_html(url):
 	req = urllib2.Request(url)
-	req.add_header('Referer','http://202.203.222.211/opac/index')
-	req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.2; rv:16.0) Gecko/20100101 Firefox/16.0')
+	req.add_header('Referer', 'http://202.203.222.211/opac/index')
+	req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.2; rv:16.0) Gecko/20100101 Firefox/16.0')
 	return urllib2.urlopen(req).read()
 
 def search_books(keyword, way="", page=1, rows=20):
@@ -42,11 +42,6 @@ def search_books(keyword, way="", page=1, rows=20):
 	print url
 	try:
 		html = get_html(url)
-	except urllib2.HTTPError:
-		try:
-			html = get_html(url)
-		except urllib2.HTTPError:
-			return []
 	except:
 		return None
 # 	print html
@@ -121,7 +116,7 @@ def get_bookinfo_by_isbn(isbns):
 	if type(isbns) == type([]):
 		isbns = ','.join(isbns)
 	isbns = isbns.replace('-', '')
-	url = 'http://api.interlib.com.cn/interlibopac/websearch/metares?cmdACT=getImages&type=0&callback=S&isbns=%s'%isbns
+	url = 'http://api.interlib.com.cn/interlibopac/websearch/metares?cmdACT=getImages&type=0&callback=S&isbns=%s' % isbns
 	print get_html(url)
 
 def togbk(us):
@@ -132,17 +127,17 @@ def test(k="Java"):
 	books = search_books(k)
 	if type(books) is types.ListType:
 		if books:
-			print 'ct:%d'%len(books)
+			print 'ct:%d' % len(books)
 			for book in books:
-				print '%s %s'%(book['name'], book)
+				print '%s %s' % (book['name'], book)
 		else:
 			print 'empty'
 	else:
 		print 'fail'
 
 if __name__ == '__main__':
-# 	test('图像融合')
-	get_bookinfo_by_isbn('978-7-5641-4659-7')
+	test('图像融合')
+# 	get_bookinfo_by_isbn('978-7-5641-4659-7')
 
 
 

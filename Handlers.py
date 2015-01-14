@@ -33,6 +33,7 @@ class TencentWX(WXHandler):
 		文本消息处理
 		'''
 		# 对于文本消息，调用handlemessage之后放回处理结果
+		wxaccess.context.wxaccess = wxaccess
 		msg = handlemessage(wxaccess.fromuser, wxaccess.get_textmsg(), wxaccess.context)
 		if len(msg.encode("utf-8")) > WX_TXTMSG_MAXLEN:
 			# 需要截断

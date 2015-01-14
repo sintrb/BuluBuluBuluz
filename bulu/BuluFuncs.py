@@ -129,6 +129,13 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 	return rets
 
 
+@SLTAddAttrs(name='开发者选项', help='开发者选项')
+def tool_dev(user, msg, sesn, ctx=None):
+	if hasattr(ctx, 'wxaccess'):
+		return 'wx'
+	else:
+		return 'web'
+
 @SLTAddAttrs(name='echo', help='回显测试\n给我消息我原样返回')
 def tool_echo(user, msg, sesn, ctx=None):
 	return msg

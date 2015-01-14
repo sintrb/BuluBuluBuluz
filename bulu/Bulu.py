@@ -18,6 +18,7 @@ slt.add_route('1', BuluFuncs.ynu_lib_search)
 slt.add_route('1.echo', BuluFuncs.tool_echo)
 slt.add_route('1.debug', BuluFuncs.tool_debug)
 slt.add_route('1.config', BuluFuncs.tool_config)
+slt.add_route('1.dev', BuluFuncs.tool_dev)
 
 
 slt.refresh_allroute()
@@ -117,7 +118,7 @@ def handlemessage(user, msg, ctx=None):
 	  				)
 	msgobj = {	'userid':user,
 				'message':rets,
-				'type':'text(%s)'%(entm-sttm),
+				'type':'text(%s)' % (entm - sttm),
 				'typeid': MESSAGE_TYPE_TEXT,
 				'dir':MESSAGE_DIR_DOWN,
 				'time':int(time())
