@@ -6,7 +6,7 @@ Created on 2013-10-5
 '''
 
 SPLITLINE = '-----------'
-LONGSPLITLINE = '%s%s'%(SPLITLINE, SPLITLINE)
+LONGSPLITLINE = '%s%s' % (SPLITLINE, SPLITLINE)
 BOTTOMHELP = '你可以发送问号(?)给我'
 BOTTOMHELPFULL = '%s\n%s' % (LONGSPLITLINE, BOTTOMHELP)
 
@@ -26,13 +26,16 @@ def is_num(s):
 	except:
 		return False
 
-@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键字即可.\n如果我没有回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
+def books_to_lines(books):
+	return ['%d. %s - %s (%s)' % (ix + 1, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))]
+
+@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键词即可,多个关键词之间用空格隔开.\n如果我长时间没能回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
 def ynu_lib_search(user, msg, sesn, ctx=None):
 	rows = 20
-	usecache = False
-	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s'%BOTTOMHELPFULL
+	usecache = True
+	ynu_lib_ser_err = 'Oops...\n联系不到图书馆服务器~\n%s' % BOTTOMHELPFULL
 	keyword = msg.strip()
-	rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s'%(keyword, BOTTOMHELPFULL)
+	rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s' % (keyword, BOTTOMHELPFULL)
 	if len(keyword) > 0:
 		sesn = PrefixDict(rawdict=sesn, prefix='ynu_lib_search')
 		page = 1
@@ -61,32 +64,35 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 		
 		if is_num(keyword) and sesn['books']:
 			ix = int(keyword)
-			stbks = sesn['books']
-			if stbks and ix >= 0 and ix <len(stbks):
-				bk = stbks[ix]
-				holds = get_holdinginfo(bk['bookid'])
-				if holds:
-					spl = '\n%s\n' % SPLITLINE
-					hds = spl.join(['馆名:%s\n位置:%s\n数目:%s'%(hd['libname'], hd['locname'], hd['number']) for hd in holds])
-					info = '%s\n索引号:%s'%(bk['name'], bk['index'])
-					rets = '%s\n%s\n%s\n%s\n%s'%(info, LONGSPLITLINE, hds, LONGSPLITLINE, '输入数字继续许查看明细')
+			books = sesn['books']
+			if ix >= 0 and ix <= len(books):
+				if ix == 0:
+					return '只有程序员才从0开始数数~，你不会是程序员吧'
 				else:
-					rets = ynu_lib_ser_err
+					bk = books[ix - 1]
+					holds = get_holdinginfo(bk['bookid'])
+					if holds:
+						spl = '\n%s\n' % SPLITLINE
+						hds = spl.join(['馆名:%s\n位置:%s\n数目:%s' % (hd['libname'], hd['locname'], hd['number']) for hd in holds])
+						info = '%s\n索引号:%s' % (bk['name'], bk['index'])
+						rets = '%s\n%s\n%s\n%s\n%s' % (info, LONGSPLITLINE, hds, LONGSPLITLINE, '输入数字继续许查看明细')
+					else:
+						rets = ynu_lib_ser_err
 			else:
 				spl = '\n%s\n' % SPLITLINE
-				bks = spl.join(['%d. %s (%s)' % (ix, stbks[ix]['name'], stbks[ix]['index']) for ix in range(len(stbks))])
-				return '输入的数字超出了范围!\n%s\n%s\n%s\n%s'%(LONGSPLITLINE, bks, LONGSPLITLINE, '输入数字查看明细')
+				bks = spl.join(books_to_lines(books))
+				return '输入的数字超出了范围!\n%s\n%s\n%s\n%s' % (LONGSPLITLINE, bks, LONGSPLITLINE, '输入数字查看明细')
 		else:
 			sesn['keyword'] = keyword
 			
-			searchkey='%s_r%s_p%s'%(keyword, rows, page)
+			searchkey = '%s_r%s_p%s' % (keyword, rows, page)
 			searchkvdb = SinKVDB(ctx.con, table='tb_bulu_kvdb_ynusch', tag='bulu', cache=False, debug=False, create=True)
 			books = None
 			iscache = False
 			if usecache and searchkey in searchkvdb:
 				try:
 					modifytime = searchkvdb.get_one(searchkey)['modifytime']
-					if (time.time() - modifytime)<(3600*24):
+					if (time.time() - modifytime) < (3600 * 24):
 						# 缓存一天
 						books = searchkvdb[searchkey]
 						iscache = True
@@ -102,22 +108,22 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 			if type(books) is types.ListType:
 				if len(books):
 					spl = '\n%s\n' % SPLITLINE
-					bks = spl.join(['%d. %s - %s (%s)' % (ix, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))])
+					bks = spl.join(['%d. %s - %s (%s)' % (ix + 1, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))])
 					sesn['books'] = books
 					htip = '数字看明细'
-					pgt = '第%s页 N下页  '%page
-					if page>1:
-						pgt = '%sP上页\n'%pgt
-					pgt = '%s%s'%(pgt, htip)
+					pgt = '第%s页 N下页  ' % page
+					if page > 1:
+						pgt = '%sP上页\n' % pgt
+					pgt = '%s%s' % (pgt, htip)
 					tip = (iscache and '条(来自缓存)') or '条'
 					rets = '%s :%d%s\n%s\n%s\n%s\n%s' % (keyword, len(books), tip, LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
 					sesn['page'] = page
-					if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc','ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
-						rets = '/:heart%s'%rets	# yeah, the heart is for you
+					if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc', 'ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
+						rets = '/:heart%s' % rets  # yeah, the heart is for you
 				elif page != 1:
 					rets = '%s :没有了\n%s\n第%s页  P上一页' % (keyword, LONGSPLITLINE, page)
 				else:
-					rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s'%(keyword, BOTTOMHELPFULL)
+					rets = '%s\n抱歉~~\n没有找到相关图书.\n请试着简化一下关键字,并使用空格将关键字隔开.\n%s' % (keyword, BOTTOMHELPFULL)
 			else:
 				rets = ynu_lib_ser_err
 	return rets
@@ -142,7 +148,7 @@ def tool_debug(user, msg, sesn, ctx=None):
 		unsub = dba.get_count(tb_event, conditions={'eventid':2, 'type':'weixin'})
 		mcount = dba.get_count(tb_message, conditions={'dir':1})
 		if 'sub' in sesn:
-			pres = '新增\n---订阅:%s\n---退订:%s\n---消息:%s\n'%(sub-sesn['sub'], unsub-sesn['unsub'], mcount-sesn['mcount'])
+			pres = '新增\n---订阅:%s\n---退订:%s\n---消息:%s\n' % (sub - sesn['sub'], unsub - sesn['unsub'], mcount - sesn['mcount'])
 		else:
 			pres = ''
 		sesn['sub'] = int(sub)
@@ -150,25 +156,25 @@ def tool_debug(user, msg, sesn, ctx=None):
 		sesn['count'] = int(count)
 		sesn['mcount'] = int(mcount)
 		
-		return '%s统计\n---订阅: %s\n---退订: %s\n---剩余: %s\n---总数: %s\n---消息:%s'%(pres, sub, unsub, sub-unsub, count, mcount)
+		return '%s统计\n---订阅: %s\n---退订: %s\n---剩余: %s\n---总数: %s\n---消息:%s' % (pres, sub, unsub, sub - unsub, count, mcount)
 	elif msg == 'last':
 		from sinlibs.utils.timeutils import stamp2str
 		dba = SinDBAccess(ctx.con, debug=False)
-		return '\n'.join(['%s %s'%(stamp2str(int(o['time']), '%m-%d %H:%M'), o['message']) for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
+		return '\n'.join(['%s %s' % (stamp2str(int(o['time']), '%m-%d %H:%M'), o['message']) for o in dba.get_objects(tb_message, conditions={'dir':1}, order='id desc', limit=15)])
 	return 'unkown'
 
 @SLTAddAttrs(name='设置模式', help='设置模式\nkey=value\nshow')
 def tool_config(user, msg, sesn, ctx=None):
 	if msg == 'show':
-		ss = ['%s=%s'%(k, v) for (k,v) in Bulu.config.items()]
+		ss = ['%s=%s' % (k, v) for (k, v) in Bulu.config.items()]
 		return '\n'.join(ss)
 	
 	kvs = msg.split('=')
-	if len(kvs)==2:
+	if len(kvs) == 2:
 		k = kvs[0].strip()
 		v = eval(kvs[1].replace("(", "").replace(")", "").strip())
 		Bulu.config[k] = v
-		ss = ['%s=%s'%(k, v) for (k,v) in Bulu.config.items()]
+		ss = ['%s=%s' % (k, v) for (k, v) in Bulu.config.items()]
 		return '\n'.join(ss)
 	return 'unkown'
 

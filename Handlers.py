@@ -12,7 +12,7 @@ from bulu.Bulu import handlemessage, whensubscribeevent, whenunsubscribeevent, B
 
 WXTOKEN = 'bulubulubuluztoken'
 
-WX_TXTMSG_MAXLEN = 680 # 消息最大长度
+WX_TXTMSG_MAXLEN = 2000  # 消息最大长度
 
 class TencentWX(WXHandler):
 	'''
@@ -34,12 +34,16 @@ class TencentWX(WXHandler):
 		'''
 		# 对于文本消息，调用handlemessage之后放回处理结果
 		msg = handlemessage(wxaccess.fromuser, wxaccess.get_textmsg(), wxaccess.context)
-		if len(msg) > WX_TXTMSG_MAXLEN:
+		if len(msg.encode("utf-8")) > WX_TXTMSG_MAXLEN:
 			# 需要截断
-			ix = msg.rfind('\n', 0, WX_TXTMSG_MAXLEN-80)
-			if ix>0:
-				rmsg = msg[0:ix]
-				msg = '%s\n<a href="http://bulubulubuluz.sinaapp.com/showmsg/%s/%s">显示更多消息...</a>'%(rmsg, wxaccess.fromuser, wxaccess.context.msgobj['time'])
+			try:
+				bts = msg.encode("utf-8")
+				ix = bts.rfind('\n', 0, WX_TXTMSG_MAXLEN - 80)
+				if ix > 0:
+					rmsg = msg[0:ix]
+					msg = '%s\n<a href="http://bulubulubuluz.sinaapp.com/showmsg/%s/%s">显示更多消息...</a>' % (rmsg.decode("utf-8"), wxaccess.fromuser, wxaccess.context.msgobj['time'])
+			except:
+				pass
 		return wxaccess.response_textmessage(msg)
 
 	def whenunknownmsgtype(self, wxaccess):
