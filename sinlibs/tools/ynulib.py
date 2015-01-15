@@ -6,6 +6,7 @@ Created on 2013-9-13
 '''
 
 import re
+import json
 import urllib2
 from xml.dom import minidom
 from sinlibs.utils import strings
@@ -67,11 +68,11 @@ def search_books(keyword, way="", page=1, rows=20):
 				try:
 					book['author'] = re.findall("searchWay=author&q=([^\"]+)", ihtm)[0]
 				except:
-					pass
+					book['author'] = '未知'
 				try:
-					book['isbn'] = re.findall('isbn="([^"]*)"', ihtm)[0]
+					book['isbn'] = re.findall('isbn="([[0-9\-]+]*)"', ihtm)[0]
 				except:
-					pass
+					book['isbn'] = ''
 				books[bookid] = book
 				allbooks.append(book)
 			except:
@@ -119,6 +120,13 @@ def get_bookinfo_by_isbn(isbns):
 	url = 'http://api.interlib.com.cn/interlibopac/websearch/metares?cmdACT=getImages&type=0&callback=S&isbns=%s' % isbns
 	print get_html(url)
 
+def get_douban_book_by_isbn(isbn):
+	url = 'https://api.douban.com/v2/book/isbn/%s' % isbn
+	try:
+		return json.loads(get_html(url))
+	except:
+		return None
+
 def togbk(us):
 	return us
 
@@ -136,8 +144,8 @@ def test(k="Java"):
 		print 'fail'
 
 if __name__ == '__main__':
-	test('图像融合')
-# 	get_bookinfo_by_isbn('978-7-5641-4659-7')
+	test('love')
+# 	print get_douban_book_by_isbn('9787560953489')
 
 
 

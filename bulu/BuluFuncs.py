@@ -10,7 +10,7 @@ LONGSPLITLINE = '%s%s' % (SPLITLINE, SPLITLINE)
 BOTTOMHELP = '你可以发送问号(?)给我'
 BOTTOMHELPFULL = '%s\n%s' % (LONGSPLITLINE, BOTTOMHELP)
 
-from sinlibs.tools.ynulib import search_books, get_holdinginfo
+from sinlibs.tools.ynulib import search_books, get_holdinginfo, get_douban_book_by_isbn
 from SinLikeTerminal import SLTAddAttrs, PrefixDict
 from sinlibs.db.SinKVDB import SinKVDB
 from sinlibs.db.SinDBAccess import SinDBAccess
@@ -29,6 +29,7 @@ def is_num(s):
 def books_to_lines(books):
 	return ['%d. %s - %s (%s)' % (ix + 1, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))]
 
+
 @SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键词即可,多个关键词之间用空格隔开.\n如果我长时间没能回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
 def ynu_lib_search(user, msg, sesn, ctx=None):
 	rows = 20
@@ -39,7 +40,30 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 	if len(keyword) > 0:
 		sesn = PrefixDict(rawdict=sesn, prefix='ynu_lib_search')
 		page = 1
-		if keyword in 'nN':
+		if keyword in 'dD' and sesn['book']:
+# 			PrefixDict(rawdict=ctx.kvdb, prefix='ynu_lib_bookinfo_by_isbn')
+			try:
+				book = sesn['book']
+				if 'isbn' in book and  book['isbn']:
+					infokey = 'douban_book_info_%s' % (book['isbn'])
+					info = ctx.kvdb.get_value_after(infokey, time.time() - 60)
+					flag = False
+					if not info:
+						info = get_douban_book_by_isbn(book['isbn'])
+						flag = True
+					if info and ('code' not in info or not info['code']):
+						if flag:
+							ctx.kvdb[infokey] = info
+						p = info['summary']
+						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(info['title'], p, info['images']['medium'], info['alt']))
+					else:
+						return '查询豆瓣接口失败'
+				else:
+					return '没有ISBN码的书籍无法查询'
+			except:
+				return '抱歉~~~查询的时候出了些问题~'
+				
+		elif keyword in 'nN':
 			# next page
 			try:
 				if 'page' in sesn:
@@ -75,7 +99,12 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 						spl = '\n%s\n' % SPLITLINE
 						hds = spl.join(['馆名:%s\n位置:%s\n数目:%s' % (hd['libname'], hd['locname'], hd['number']) for hd in holds])
 						info = '%s\n索引号:%s' % (bk['name'], bk['index'])
-						rets = '%s\n%s\n%s\n%s\n%s' % (info, LONGSPLITLINE, hds, LONGSPLITLINE, '输入数字继续许查看明细')
+						bottomtip = '输入其他数字查看对应图书明细'
+						if 'isbn' in bk and bk['isbn']:
+							info = '%s\nISBN:%s' % (info, bk['isbn'])
+							bottomtip = '%s\n%s' % ('D在豆瓣上查看该图书信息', bottomtip)
+						sesn['book'] = bk
+						rets = '%s\n%s\n%s\n%s\n%s' % (info, LONGSPLITLINE, hds, LONGSPLITLINE, bottomtip)
 					else:
 						rets = ynu_lib_ser_err
 			else:
@@ -110,7 +139,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 					spl = '\n%s\n' % SPLITLINE
 					bks = spl.join(['%d. %s - %s (%s)' % (ix + 1, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))])
 					sesn['books'] = books
-					htip = '数字看明细'
+					htip = '输入数字看图书明细'
 					pgt = '第%s页 N下页  ' % page
 					if page > 1:
 						pgt = '%sP上页\n' % pgt

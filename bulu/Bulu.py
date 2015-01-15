@@ -117,7 +117,7 @@ def handlemessage(user, msg, ctx=None):
 	  							}
 	  				)
 	msgobj = None
-	if type(rets) == type(''):
+	if type(rets) != type((1,)):
 		msgobj = {	'userid':user,
 					'message':rets,
 					'type':'text(%s)' % (entm - sttm),

@@ -115,9 +115,10 @@ class OnlineBulu(BubulBase):
 		else:
 			user = web.cookies().get('usertoken')
 		msg = web.input(message='?').message
+		res = handlemessage(user, msg, self.ctx)
 		ret = {
 			   'status': True,
-			   'message': handlemessage(user, msg, self.ctx)
+			   'message': res if type(res) != type((0,)) else res[1]
 			   }
 		return json.dumps(ret)
 

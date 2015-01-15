@@ -36,7 +36,7 @@ class TencentWX(WXHandler):
 		wxaccess.context.wxaccess = wxaccess
 		wxaccess.context.adapter = WXAdapter(wxaccess)
 		msg = handlemessage(wxaccess.fromuser, wxaccess.get_textmsg(), wxaccess.context)
-		if type(msg) == type(''):
+		if type(msg) != type((1,)):
 			if len(msg.encode("utf-8")) > WX_TXTMSG_MAXLEN:
 				# 需要截断
 				try:

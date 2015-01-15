@@ -10,6 +10,8 @@ class BaseAdapter:
         raise Exception("unimplemented")
     def image(self, img):
         raise Exception("unimplemented")
+    def article(self, title, desc, imgurl, url):
+        raise Exception("unimplemented")
 
 class WXAdapter(BaseAdapter):
     def __init__(self, wxaccess):
@@ -24,12 +26,22 @@ class WXAdapter(BaseAdapter):
                    'Url':imgurl
                    }
         return self.wxaccess.response_articlesmsg([Article, ])
-
+    def article(self, title, desc, imgurl, url):
+        Article = {
+                   'Title':title,
+                   'Description':desc,
+                   'PicUrl':imgurl,
+                   'Url':url
+                   }
+        return self.wxaccess.response_articlesmsg([Article, ])
 class WebAdapter(BaseAdapter):
     def text(self, txt):
         return txt
     def image(self, imgurl):
         return '<img src="%s" />' % imgurl
+    def article(self, title, desc, imgurl, url):
+        import cgi
+        return '<h3><a href="%s">%s</a></h3> <img src="%s" /><p>%s</p>' % (url, cgi.escape(title), imgurl, cgi.escape(desc))
 
 
 
