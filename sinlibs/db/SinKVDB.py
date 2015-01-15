@@ -38,14 +38,14 @@ class SinKVDB(object):
     '''
     maparr = [
             (type(None), 'none', str, eval),
-            (type(1),'int', str, int),
-            (type(True),'bool', str, eval),
-            (type(1.0),'float', str, float),
-            (type('s'),'string', str, str),
-            (type(u's'),'unicode', str, str),
-            (type({}),'dict', json.dumps, json.loads),
-            (type([]),'list', json.dumps, json.loads),
-            (type(()),'tuple', json.dumps, json.loads),
+            (type(1), 'int', str, int),
+            (type(True), 'bool', str, eval),
+            (type(1.0), 'float', str, float),
+            (type('s'), 'string', str, str),
+            (type(u's'), 'unicode', str, str),
+            (type({}), 'dict', json.dumps, json.loads),
+            (type([]), 'list', json.dumps, json.loads),
+            (type(()), 'tuple', json.dumps, json.loads),
         ]
     
     
@@ -53,7 +53,7 @@ class SinKVDB(object):
     convmap = dict(((a[0], a[2]) for a in maparr))
     valumap = dict(((a[1], a[3]) for a in maparr))
     
-    def __init__(self, dbcon=None, table=None, tag=None, cache=True, cachesize=10, reset=False, debug = False, autocommit=False, create=True):
+    def __init__(self, dbcon=None, table=None, tag=None, cache=True, cachesize=10, reset=False, debug=False, autocommit=False, create=True):
         '''
         A Python Key-Value Database.
         @dbcon Database connection
@@ -91,13 +91,13 @@ class SinKVDB(object):
         '''
         if self.cache:
             self.__cache__.clear()
-        return self.__execsql__(__TPL_DELETETABLE__%self.table)
+        return self.__execsql__(__TPL_DELETETABLE__ % self.table)
     
     def __create_table__(self):
         '''
         Create table to store key-value data
         '''
-        return self.__execsql__(__TPL_CREATETABLE__%self.table)
+        return self.__execsql__(__TPL_CREATETABLE__ % self.table)
         
     def __pingdb__(self):
         '''
@@ -117,9 +117,9 @@ class SinKVDB(object):
         if self.debug:
             if args is not None:
                 sql = query % self.dbcon.literal(args)
-                print 'query: %s'%sql
+                print 'query: %s' % sql
             else:
-                print 'query: %s'%query
+                print 'query: %s' % query
         try:
             return self.dbcur.execute(query, args)
         except:
@@ -147,19 +147,19 @@ class SinKVDB(object):
         '''
         Add record by key-value and type
         '''
-        return self.__execsql__('INSERT INTO `'+self.table+'`(`key`, `value`, `tag`, `type`, `createtime`, `modifytime`) VALUES(%s, %s, %s, %s, %s, %s)', [key, value, self.tag, ctype, time.time(), time.time()])
+        return self.__execsql__('INSERT INTO `' + self.table + '`(`key`, `value`, `tag`, `type`, `createtime`, `modifytime`) VALUES(%s, %s, %s, %s, %s, %s)', [key, value, self.tag, ctype, time.time(), time.time()])
     
     def set_one(self, key, value, ctype):
         '''
         Set record by key-value and type
         '''
-        return self.__execsql__('UPDATE `'+self.table+'` SET `value`=%s, `tag`=%s, `type`=%s, `modifytime`=%s WHERE `key`=%s', [value, self.tag, ctype, time.time(), key])
+        return self.__execsql__('UPDATE `' + self.table + '` SET `value`=%s, `tag`=%s, `type`=%s, `modifytime`=%s WHERE `key`=%s', [value, self.tag, ctype, time.time(), key])
     
     def get_one(self, key):
         '''
         Get one record by key
         '''
-        objs = self.__sql2array__('SELECT * FROM `'+self.table+'` WHERE `key`=%s and `tag`=%s LIMIT 1', [key, self.tag])
+        objs = self.__sql2array__('SELECT * FROM `' + self.table + '` WHERE `key`=%s and `tag`=%s LIMIT 1', [key, self.tag])
         if objs and len(objs):
             return objs[0]
         else:
@@ -189,7 +189,7 @@ class SinKVDB(object):
         if this record's type is json.
         '''
         if not obj['type'] in SinKVDB.valumap:
-            raise Exception('Not support type of: %s'%obj['type'])
+            raise Exception('Not support type of: %s' % obj['type'])
         return SinKVDB.valumap[obj['type']](obj['value'])
     
     def __getitem__(self, key):
@@ -199,7 +199,7 @@ class SinKVDB(object):
         '''
         if self.cache and key in self.__cache__:
             # return from cache
-            print 'from cache:%s'%key
+            print 'from cache:%s' % key
             return self.__cache__[key]
         
         obj = self.get_one(key)
@@ -214,11 +214,11 @@ class SinKVDB(object):
             kvdb['key'] = '123456789'
         '''
         if not type(value) in SinKVDB.typemap:
-            raise Exception('Not support type of: %s'%type(value))
+            raise Exception('Not support type of: %s' % type(value))
         ctype = SinKVDB.typemap[type(value)]
         cvalue = SinKVDB.convmap[type(value)](value)
         if self.cache:
-            if len(self.__cache__)<self.cachesize or key in self.__cache__:
+            if len(self.__cache__) < self.cachesize or key in self.__cache__:
                 self.__cache__[key] = value
             else:
                 del self.__cache__[random.choice(self.__cache__.keys())]
@@ -238,7 +238,7 @@ class SinKVDB(object):
             # delete from cache
             del self.__cache__[key]
             
-        res = self.__execsql__('DELETE FROM `'+self.table+'` WHERE `key`=%s and `tag`=%s LIMIT 1', [key, self.tag])
+        res = self.__execsql__('DELETE FROM `' + self.table + '` WHERE `key`=%s and `tag`=%s LIMIT 1', [key, self.tag])
         if res and self.autocommit:
             self.commit()
         return res
@@ -257,7 +257,7 @@ class SinKVDB(object):
         '''
         if not keyfilter:
             keyfilter = '%'
-        return self.__sql2array__('SELECT * FROM `'+self.table+'` WHERE `key` LIKE %s and `tag`=%s', [keyfilter, self.tag])
+        return self.__sql2array__('SELECT * FROM `' + self.table + '` WHERE `key` LIKE %s and `tag`=%s', [keyfilter, self.tag])
     
     def items(self, keyfilter=None):
         '''
@@ -265,7 +265,7 @@ class SinKVDB(object):
         Filter is supported as SQL LIKE filter 
         '''
         objs = self.get_all(keyfilter)
-        return [(obj['key'],self.__getval__(obj)) for obj in objs]
+        return [(obj['key'], self.__getval__(obj)) for obj in objs]
     
     def keys(self, keyfilter=None):
         '''
@@ -283,3 +283,11 @@ class SinKVDB(object):
         objs = self.get_all(keyfilter)
         return [self.__getval__(obj) for obj in objs]
     
+    def get_value_after(self, key, timestamp):
+        '''
+        Get value after a timestamp
+        '''
+        obj = self.get_one(key)
+        if obj and obj['modifytime'] > timestamp:
+            return self.__getval__(obj)
+        return None
