@@ -46,7 +46,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 				book = sesn['book']
 				if 'isbn' in book and  book['isbn']:
 					infokey = 'douban_book_info_%s' % (book['isbn'])
-					info = ctx.kvdb.get_value_after(infokey, time.time() - 60)
+					info = ctx.kvdb.get_value_after(infokey, time.time() - 60 * 60)
 					flag = False
 					if not info:
 						info = get_douban_book_by_isbn(book['isbn'])
@@ -54,8 +54,9 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 					if info and ('code' not in info or not info['code']):
 						if flag:
 							ctx.kvdb[infokey] = info
-						p = info['summary']
-						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(info['title'], p, info['images']['medium'], info['alt']))
+						p = '%s(豆瓣)' % info['summary']
+						t = '%s %s' % (info['title'], info['rating']['average'])
+						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, info['images']['medium'], info['alt']))
 					else:
 						return '查询豆瓣接口失败'
 				else:
