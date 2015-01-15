@@ -131,7 +131,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 
 @SLTAddAttrs(name='开发者选项', help='开发者选项')
 def tool_dev(user, msg, sesn, ctx=None):
-	return ctx.adapter.image('http://img5.douban.com/spic/s3910368.jpg')
+	return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.image('http://img5.douban.com/spic/s3910368.jpg'))
 
 @SLTAddAttrs(name='echo', help='回显测试\n给我消息我原样返回')
 def tool_echo(user, msg, sesn, ctx=None):
