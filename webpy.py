@@ -16,7 +16,7 @@ from bulu.Bulu import whensubscribeevent
 from sinlibs.db.SinDBAccess import SinDBAccess
 from sinlibs.db.SinKVDB import SinKVDB
 from bulu.Bulu import tb_message, MESSAGE_TYPE_TEXT, MESSAGE_DIR_DOWN
-
+from bulu.Adapters import BaseAdapter, WebAdapter
 from auto.AutoTest import runtest
 
 import traceback
@@ -106,6 +106,7 @@ class OnlineBulu(BubulBase):
 		web.header('Content-Type', 'text/html; charset=utf-8')
 		return render.onlinebulu()
 	def POST(self):
+		self.ctx.adapter = WebAdapter()
 		if not web.cookies().get('usertoken'):
 			usertk = hashlib.sha1(gentoken(l=20)).hexdigest()
 			web.setcookie('usertoken', usertk, 3600 * 24 * 365)

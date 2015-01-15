@@ -8,7 +8,7 @@ Created on 2013-9-14
 
 from weixin import WXHandler
 from bulu.Bulu import handlemessage, whensubscribeevent, whenunsubscribeevent, BOTTOMHELPFULL
-
+from bulu.Adapters import BaseAdapter, WebAdapter, WXAdapter 
 
 WXTOKEN = 'bulubulubuluztoken'
 
@@ -34,18 +34,22 @@ class TencentWX(WXHandler):
 		'''
 		# 对于文本消息，调用handlemessage之后放回处理结果
 		wxaccess.context.wxaccess = wxaccess
+		wxaccess.context.adapter = WXAdapter(wxaccess)
 		msg = handlemessage(wxaccess.fromuser, wxaccess.get_textmsg(), wxaccess.context)
-		if len(msg.encode("utf-8")) > WX_TXTMSG_MAXLEN:
-			# 需要截断
-			try:
-				bts = msg.encode("utf-8")
-				ix = bts.rfind('\n', 0, WX_TXTMSG_MAXLEN - 80)
-				if ix > 0:
-					rmsg = msg[0:ix]
-					msg = '%s\n<a href="http://bulubulubuluz.sinaapp.com/showmsg/%s/%s">显示更多消息...</a>' % (rmsg.decode("utf-8"), wxaccess.fromuser, wxaccess.context.msgobj['time'])
-			except:
-				pass
-		return wxaccess.response_textmessage(msg)
+		if type(msg) == type(''):
+			if len(msg.encode("utf-8")) > WX_TXTMSG_MAXLEN:
+				# 需要截断
+				try:
+					bts = msg.encode("utf-8")
+					ix = bts.rfind('\n', 0, WX_TXTMSG_MAXLEN - 80)
+					if ix > 0:
+						rmsg = msg[0:ix]
+						msg = '%s\n<a href="http://bulubulubuluz.sinaapp.com/showmsg/%s/%s">显示更多消息...</a>' % (rmsg.decode("utf-8"), wxaccess.fromuser, wxaccess.context.msgobj['time'])
+				except:
+					pass
+			return wxaccess.response_textmessage(msg)
+		else:
+			return msg[1]
 
 	def whenunknownmsgtype(self, wxaccess):
 		'''
