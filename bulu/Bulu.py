@@ -135,9 +135,7 @@ def handlemessage(user, msg, ctx=None):
 					}
 	dba.add_object(tb_message, msgobj)
 	ctx.msgobj = msgobj
-	res = rets if type(rets) == type('') else rets[1]
-	print res
-	return res
+	return rets
 
 def whensubscribeevent(user, ctype='weixin', ctx=None):
 	'''
