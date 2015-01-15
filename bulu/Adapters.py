@@ -6,8 +6,6 @@ Created on 2015年1月14日
 '''
 
 class BaseAdapter:
-    TYPE_TEXT = 0
-    TYPE_IMAGE = 1
     def text(self, txt):
         raise Exception("unimplemented")
     def image(self, img):

@@ -10,7 +10,7 @@ from SinLikeTerminal import SinLikeTerminal
 from BuluFuncs import BOTTOMHELPFULL
 import BuluFuncs
 import traceback
-
+from bulu.Adapters import BaseAdapter
 config = {'debug':True}
 
 slt = SinLikeTerminal()
@@ -60,10 +60,10 @@ tpl_message = {
 			'message':'',
 			'time':int(time())
 			}
-
+MESSAGE_TYPE_UNKNOWN = 0
 MESSAGE_TYPE_TEXT = 1
 MESSAGE_TYPE_ERROR = 2
-
+MESSAGE_TYPE_IMAGE = 3
 
 MESSAGE_DIR_UP = 1
 MESSAGE_DIR_DOWN = 2
@@ -116,16 +116,26 @@ def handlemessage(user, msg, ctx=None):
 	  							'time':int(time())
 	  							}
 	  				)
-	msgobj = {	'userid':user,
-				'message':rets,
-				'type':'text(%s)' % (entm - sttm),
-				'typeid': MESSAGE_TYPE_TEXT,
-				'dir':MESSAGE_DIR_DOWN,
-				'time':int(time())
-				}
+	msgobj = None
+	if type(rets) == type(''):
+		msgobj = {	'userid':user,
+					'message':rets,
+					'type':'text(%s)' % (entm - sttm),
+					'typeid': MESSAGE_TYPE_TEXT,
+					'dir':MESSAGE_DIR_DOWN,
+					'time':int(time())
+					}
+	else:
+		msgobj = {	'userid':user,
+					'message':rets[1],
+					'type':'%s(%s)' % (rets[0] == MESSAGE_TYPE_IMAGE and 'image' or 'unknow', (entm - sttm)),
+					'typeid': MESSAGE_TYPE_IMAGE,
+					'dir':MESSAGE_DIR_DOWN,
+					'time':int(time())
+					}
 	dba.add_object(tb_message, msgobj)
 	ctx.msgobj = msgobj
-	return rets
+	return rets if type(rets) == type('') else rets[1]
 
 def whensubscribeevent(user, ctype='weixin', ctx=None):
 	'''
