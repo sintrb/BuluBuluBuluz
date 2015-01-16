@@ -20,12 +20,22 @@ class YnuLibTest(Test):
     def __init__(self):
         Test.__init__(self, 'YnuLib Test')
     def runtest(self):
-        return len(ynulib.search_books('OK'))>0
+        return len(ynulib.search_books('OK')) > 0
 
+class DoubanBookTest(Test):
+    def __init__(self):
+        Test.__init__(self, 'DoubanBook Test')
+    def runtest(self):
+        try:
+            info = ynulib.get_douban_book_by_isbn('9787560953489')
+            return info and 'code' not in info
+        except:
+            return False
 
 
 testlist = [
-            YnuLibTest()
+            YnuLibTest(),
+            DoubanBookTest()
             ]
 
 
@@ -37,16 +47,15 @@ def runtest(kvdb):
         kvdb['testindex'] = 0
     if not 'premailtime' in kvdb:
         kvdb['premailtime'] = 0
-    testindex = 0 if kvdb['testindex']==None else kvdb['testindex']
     
-
+    testindex = kvdb['testindex']
     if testindex >= len(testlist):
         keys = ['name', 'cost', 'result', 'start', 'message']
-        mail = '\n----\n'.join(['\n'.join(['%s:%s'%(k,tr[k]) for k in keys]) for tr in kvdb['reuslts']])
+        mail = '\n----\n'.join(['\n'.join(['%s:%s' % (k, tr[k]) for k in keys]) for tr in kvdb['reuslts']])
         kvdb['reuslts'] = []
         kvdb['testindex'] = 0
         
-        if (time.time() - kvdb['premailtime']) > (60*60*12) or (False in [r['result'] for r in kvdb['reuslts']] and (time.time() - kvdb['premailtime']) > (60*60)):
+        if (time.time() - kvdb['premailtime']) > (60 * 60 * 12) or (False in [r['result'] for r in kvdb['reuslts']] and (time.time() - kvdb['premailtime']) > (60 * 60)):
             web.sendmail(web.config.smtp_username, 'trbbadboy@qq.com', 'AutoTest', mail)
             kvdb['premailtime'] = time.time()
             return mail 
@@ -56,7 +65,7 @@ def runtest(kvdb):
         sttime = time.time()
         okflag = test.runtest()
         edtime = time.time()
-        oftime = edtime-sttime
+        oftime = edtime - sttime
         tres = {
                  'name':test.name,
                  'cost':oftime,
@@ -68,6 +77,7 @@ def runtest(kvdb):
         result.append(tres)
         kvdb['reuslts'] = result
         kvdb['testindex'] = testindex + 1
+        print 't %s' % kvdb['testindex']
         return json.dumps(tres)
 
 
