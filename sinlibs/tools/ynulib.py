@@ -40,7 +40,7 @@ def search_books(keyword, way="", page=1, rows=20):
 # 	keyword = urllib2.quote(keyword.encode('gbk'))
 	keyword = keyword.strip()
 	url = get_seachurl(keyword, way, page, rows)
-	print url
+# 	print url
 	try:
 		html = get_html(url)
 	except:
@@ -144,8 +144,8 @@ def test(k="Java"):
 		print 'fail'
 
 if __name__ == '__main__':
-	test('love')
-# 	print get_douban_book_by_isbn('9787560953489')
+# 	test('love')
+	print get_douban_book_by_isbn('9787560953489')
 
 
 
