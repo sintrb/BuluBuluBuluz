@@ -100,9 +100,9 @@ def get_holdinginfo(bookid):
 	url = 'http://202.203.222.211/opac/book/holdingpreview/%s' % bookid
 	try:
 		xml = urllib2.urlopen(url).read()
+		doc = minidom.parseString(xml)
 	except:
 		return None
-	doc = minidom.parseString(xml)
 	holds = []
 	for cld in doc.childNodes[0].childNodes:
 		try:

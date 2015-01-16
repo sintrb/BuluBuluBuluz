@@ -56,7 +56,8 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 							ctx.kvdb[infokey] = info
 						p = '%s(豆瓣)' % info['summary']
 						t = '%s %s' % (info['title'], info['rating']['average'])
-						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, info['images']['medium'], info['alt']))
+						img = 'http://172.16.0.102:9999/?url=%s' % info['images']['medium']
+						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, img, info['alt']))
 					else:
 						return '查询豆瓣接口失败'
 				else:
@@ -96,9 +97,12 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 				else:
 					bk = books[ix - 1]
 					holds = get_holdinginfo(bk['bookid'])
-					if holds:
+					if holds != None:
 						spl = '\n%s\n' % SPLITLINE
-						hds = spl.join(['馆名:%s\n位置:%s\n数目:%s' % (hd['libname'], hd['locname'], hd['number']) for hd in holds])
+						if holds:
+							hds = spl.join(['馆名:%s\n位置:%s\n数目:%s' % (hd['libname'], hd['locname'], hd['number']) for hd in holds])
+						else:
+							hds = '没有查找到在馆信息'
 						info = '%s\n索引号:%s' % (bk['name'], bk['index'])
 						bottomtip = '输入其他数字查看对应图书明细'
 						if 'isbn' in bk and bk['isbn']:
@@ -161,7 +165,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 
 @SLTAddAttrs(name='开发者选项', help='开发者选项')
 def tool_dev(user, msg, sesn, ctx=None):
-	return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.image('http://img5.douban.com/spic/s3910368.jpg'))
+	return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.image('http://placehold.it/360x200'))
 
 @SLTAddAttrs(name='echo', help='回显测试\n给我消息我原样返回')
 def tool_echo(user, msg, sesn, ctx=None):
