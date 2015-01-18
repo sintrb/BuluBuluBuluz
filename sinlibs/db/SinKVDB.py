@@ -10,7 +10,7 @@ import time
 import json
 import random
 
-__version__ = '1.1'
+__version__ = '1.2'
 
 __TPL_DELETETABLE__ = '''
 DROP TABLE IF EXISTS `%s`;
