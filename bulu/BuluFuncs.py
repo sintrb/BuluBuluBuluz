@@ -57,7 +57,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 							ctx.kvdb[infokey] = info
 						p = '%s(豆瓣)' % info['summary']
 						t = '%s %s' % (info['title'], info['rating']['average'])
-						img = 'http://urlimg.sinaapp.com/?url=%s&width=360&height=200' % info['images']['medium']
+						img = 'http://urlimg.sinaapp.com/?url=%s&width=360&height=200&sign=By%%20Sin' % info['images']['large']
 # 						img = 'http://172.16.0.102:9999/?url=%s' % info['images']['medium']
 						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, img, info['alt']))
 					else:
