@@ -168,7 +168,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 @SLTAddAttrs(name='开发者选项', help='开发者选项')
 def tool_dev(user, msg, sesn, ctx=None):
 	from  sinlibs.tools import ynulib
-	return ynulib.get_html('https://api.douban.com/v2/book/isbn/9787560953489')
+	return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article('Title', "no p", msg, msg))
 
 @SLTAddAttrs(name='echo', help='回显测试\n给我消息我原样返回')
 def tool_echo(user, msg, sesn, ctx=None):
