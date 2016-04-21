@@ -44,7 +44,7 @@ class TencentWX(WXHandler):
 					ix = bts.rfind('\n', 0, WX_TXTMSG_MAXLEN - 80)
 					if ix > 0:
 						rmsg = msg[0:ix]
-						msg = '%s\n<a href="http://bulubulubuluz.sinaapp.com/showmsg/%s/%s">显示更多消息...</a>' % (rmsg.decode("utf-8"), wxaccess.fromuser, wxaccess.context.msgobj['time'])
+						msg = '%s\n<a href="http://bulubulubuluz.sintrb.com/showmsg/%s/%s">显示更多消息...</a>' % (rmsg.decode("utf-8"), wxaccess.fromuser, wxaccess.context.msgobj['time'])
 				except:
 					pass
 			return wxaccess.response_textmessage(msg)

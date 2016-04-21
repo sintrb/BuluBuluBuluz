@@ -31,7 +31,7 @@ def books_to_lines(books):
 	return ['%d. %s - %s (%s)' % (ix + 1, books[ix]['name'], 'author' in books[ix] and books[ix]['author'], books[ix]['index']) for ix in range(len(books))]
 
 
-@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键词即可,多个关键词之间用空格隔开.\n如果我长时间没能回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sinaapp.com/">BuluBuluBuluz</a>')
+@SLTAddAttrs(name='图书馆搜索', help='目前支持云大图书搜索.\n告诉我书名或关键词即可,多个关键词之间用空格隔开.\n如果我长时间没能回应你可以尝试再发发送.\n网页版<a href="http://bulubulubuluz.sintrb.com/">BuluBuluBuluz</a>')
 def ynu_lib_search(user, msg, sesn, ctx=None):
 	rows = 20
 	usecache = True
@@ -57,7 +57,7 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 							ctx.kvdb[infokey] = info
 						p = '%s(豆瓣)' % info['summary']
 						t = '%s %s' % (info['title'], info['rating']['average'])
-						img = 'http://urlimg.sinaapp.com/?url=%s&width=380&height=180&sign=By%%20Sin' % info['images']['large']
+						img = 'http://urlimg.sintrb.com/?url=%s&width=380&height=180&sign=By%%20Sin' % info['images']['large']
 # 						img = 'http://172.16.0.102:9999/?url=%s' % info['images']['medium']
 						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, img, info['alt']))
 					else:
