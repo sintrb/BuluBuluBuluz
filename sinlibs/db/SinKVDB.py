@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
   KEY `key_index` (`key`) USING BTREE,
   KEY `tag_index` (`tag`),
   KEY `type_index` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) CHARSET=utf8;
 ''' 
 
 class SinKVDB(object):

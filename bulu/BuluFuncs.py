@@ -57,11 +57,11 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 							ctx.kvdb[infokey] = info
 						p = '%s(豆瓣)' % info['summary']
 						t = '%s %s' % (info['title'], info['rating']['average'])
-						img = 'http://urlimg.sinaapp.com/?url=%s&width=360&height=200&sign=By%%20Sin' % info['images']['large']
+						img = 'http://urlimg.sinaapp.com/?url=%s&width=380&height=180&sign=By%%20Sin' % info['images']['large']
 # 						img = 'http://172.16.0.102:9999/?url=%s' % info['images']['medium']
 						return (Bulu.MESSAGE_TYPE_IMAGE, ctx.adapter.article(t, p, img, info['alt']))
 					else:
-						return '查询豆瓣接口失败'
+						return 'Sorry呀!没有在豆瓣上找到相关信息...'
 				else:
 					return '没有ISBN码的书籍无法查询'
 			except:
@@ -154,8 +154,8 @@ def ynu_lib_search(user, msg, sesn, ctx=None):
 					tip = (iscache and '条(来自缓存)') or '条'
 					rets = '%s :%d%s\n%s\n%s\n%s\n%s' % (keyword, len(books), tip, LONGSPLITLINE, bks, LONGSPLITLINE, pgt)
 					sesn['page'] = page
-					if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc', 'ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
-						rets = '/:heart%s' % rets  # yeah, the heart is for you
+					#if user in ['ofYB4jt9Sk0uIY8tv2nrluSH6jcc', 'ofYB4jns8_E-wvuwrXm2kzHaR-zU']:
+					#	rets = '/:heart%s' % rets  # yeah, the heart is for you
 				elif page != 1:
 					rets = '%s :没有了\n%s\n第%s页  P上一页' % (keyword, LONGSPLITLINE, page)
 				else:

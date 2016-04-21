@@ -77,7 +77,7 @@ def reset_all(ctx):
 
 def handlemessage(user, msg, ctx=None):
 # 	if msg == '.reset':# and user == 'ofYB4jt9Sk0uIY8tv2nrluSH6jcc':
-		# 该操作很危险，会重置数据库，只允许特定用户
+# 		# 该操作很危险，会重置数据库，只允许特定用户
 # 		reset_all(ctx)
 # 		return 'reset ok'
 	dba = ctx.dba
